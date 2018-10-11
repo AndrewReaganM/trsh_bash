@@ -9,15 +9,6 @@
 #include <sys/stat.h>
 #include <libgen.h>
 
-#define MAX_BUFFER = 1024
-
-int mimic(char *command, char *srcName, char *destName); //Function to copy files.
-
-int erase(char *command, char *arguments, int tok); //Function to erase files
-
-int morph(char *command, char *arguments); //Function to move files and directories.
-
-int changeDir(char *command, char *arguments); //Function to change the working directories.
-
+//hdrs
 
 #endif //INC_2_TRSH_H
