@@ -28,6 +28,11 @@ char *lineInput() {
         exit(EXIT_FAILURE);
     }
 
+    char *cwdBuf;
+    cwdBuf = malloc(PATH_MAX); //TODO: Is PATH_MAX acceptable?
+    cwdBuf = getcwd(cwdBuf, PATH_MAX);
+    printf("%s==>",cwdBuf);
+
     while (1) {
         c = getchar(); //Take in char from STDIN.
 
