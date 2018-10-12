@@ -9,6 +9,13 @@
 #include <sys/stat.h>
 #include <libgen.h>
 
-//hdrs
+#define LINE_BUFFER_SIZE 1024 // The size of the buffer that is to be created.
+#define RESIZE_CONST 2 // BUFFER_SIZE/RESIZE_CONST = the bytes added to the buffer once BUFFER_SIZE exceeded.
+#define TOKEN_BUFFER_SIZE 128 // The buffer size of the tokens.
+#define TOKEN_DELIMITERS " " // Chararcters that the parser uses to delimit text.
+
+char* lineInput(void); //Handles taking in stdin, terminates with EOF or \n.
+
+char** inputParse(char* input);
 
 #endif //INC_2_TRSH_H
