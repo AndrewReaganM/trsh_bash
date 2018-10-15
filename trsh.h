@@ -15,8 +15,22 @@
 #define TOKEN_BUFFER_SIZE 128 // The buffer size of the tokens.
 #define TOKEN_DELIMITERS " " // Chararcters that the parser uses to delimit text.
 
+struct CommandData
+{
+    int numTokens;
+
+};
+
 char* lineInput(void); //Handles taking in stdin, terminates with EOF or \n.
 
-char** inputParse(char* input);
+char** inputParse(char* input, int *numArgs);
+
+int trshHandler(char** tokenizedData);
+
+int trsh_EXTERNAL(char **tokenizedData);
+
+int trsh_INTERNAL(char **tokenizedData);
+
+//int trsh_exec(char** tokenizedData, int** filedes);
 
 #endif //INC_2_TRSH_H

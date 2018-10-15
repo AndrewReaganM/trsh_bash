@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "trsh.h"
 
 extern char **environ;
@@ -10,9 +11,13 @@ extern char **environ;
  * @return EXIT_SUCCESS on success or EXIT_FAILURE/no return value on failure.
  */
 int main(int argc, char **argv) {
-    char *input = lineInput();
-    char **tokenized = inputParse(input);
-    printf(tokenized[0]);
+    int numArgs;
+
+    while(1) {
+        char *input = lineInput();
+        char **tokenized = inputParse(input, &numArgs);
+        trshHandler(tokenized);
+    }
 
 }
 
@@ -29,15 +34,18 @@ char *lineInput() {
     }
 
     char *cwdBuf;
-    cwdBuf = malloc(PATH_MAX); //TODO: Is PATH_MAX acceptable?
+    cwdBuf = calloc(PATH_MAX,sizeof(char)); //TODO: Is PATH_MAX acceptable?
     cwdBuf = getcwd(cwdBuf, PATH_MAX);
     printf("%s==>",cwdBuf);
+    fflush(stdout);
+
 
     while (1) {
         c = getchar(); //Take in char from STDIN.
 
         if (c == EOF || c == '\n') {
             lineBuffer[length] = '\0';
+
             return lineBuffer;
         } else {
             lineBuffer[length] = c;
@@ -56,9 +64,9 @@ char *lineInput() {
     }
 }
 
-char **inputParse(char *input) {
+char **inputParse(char *input, int *numberOfTokens) {
     int bufferSize = TOKEN_BUFFER_SIZE;
-    int numberOfTokens = 0;
+    int numTok = 0;
     char **tokenizedData = malloc(bufferSize * sizeof(char *));
     char *tokenPointer;
 
@@ -70,8 +78,8 @@ char **inputParse(char *input) {
     tokenPointer = strtok(input, TOKEN_DELIMITERS);
 
     while (tokenPointer != NULL) {
-        tokenizedData[numberOfTokens] = tokenPointer;
-        if (numberOfTokens >= bufferSize) {
+        tokenizedData[numTok] = tokenPointer;
+        if (numTok >= bufferSize) {
             bufferSize += bufferSize;
             tokenizedData = realloc(tokenizedData, bufferSize * sizeof(char *));
             if (!tokenizedData) {
@@ -79,8 +87,48 @@ char **inputParse(char *input) {
                 exit(EXIT_FAILURE);
             }
         }
-        numberOfTokens++;
+        numTok++;
         tokenPointer = strtok(0, TOKEN_DELIMITERS);
     }
+    *numberOfTokens = numTok;
     return tokenizedData;
+}
+
+int trshHandler(char** tokenizedData)
+{
+    return trsh_EXTERNAL(tokenizedData);
+}
+
+int trsh_EXTERNAL(char **tokenizedData)
+{
+    int pid = fork();
+    if(pid == -1)
+    {
+        fprintf(stderr, "trsh_EXTERNAL: fork unsuccessful\n");
+        exit(EXIT_FAILURE);
+    }
+    if(pid == 0)
+    {
+        //this is the child, run the process.
+
+        exit(execvp(tokenizedData[0], tokenizedData));
+    }
+    else
+    {
+        // Parent processs
+        waitpid(pid, NULL, WUNTRACED);
+    }
+
+}
+
+int trsh_INTERNAL(char **tokenizedData)
+{
+    //Check for redirection
+    //If redirection, create a pipe??? Or will stdin/stdout work?
+    
+}
+
+int trsh_ditto(char** args)
+{
+
 }
