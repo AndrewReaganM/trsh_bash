@@ -9,27 +9,26 @@
 #include <sys/stat.h>
 #include <libgen.h>
 #include <limits.h>
+#include <errno.h>
 
 #define LINE_BUFFER_SIZE 1024 // The size of the buffer that is to be created.
 #define RESIZE_CONST 2 // BUFFER_SIZE/RESIZE_CONST = the bytes added to the buffer once BUFFER_SIZE exceeded.
 #define TOKEN_BUFFER_SIZE 128 // The buffer size of the tokens.
 #define TOKEN_DELIMITERS " " // Chararcters that the parser uses to delimit text.
 
-struct CommandData
-{
-    int numTokens;
+char* trsh_LINEINPUT(void); //Handles taking in stdin, terminates with EOF or \n.
 
-};
+char** trsh_INPUTPARSE(char *input, int *numArgs); //Parses the input into tokens.
 
-char* lineInput(void); //Handles taking in stdin, terminates with EOF or \n.
+int trsh_HANDLER(char **tokenizedData); //Handles command routing, and any commands that need to be run in master proc.
 
-char** inputParse(char* input, int *numArgs);
+int trsh_EXTERNAL(char **tokenizedData); //Runs external exec commands.
 
-int trshHandler(char** tokenizedData);
+int trsh_INTERNAL(char **tokenizedData); //Runs internal trsh commands.
 
-int trsh_EXTERNAL(char **tokenizedData);
+int trsh_chdir(char* directory); //Changes the working directory of the current shell.
 
-int trsh_INTERNAL(char **tokenizedData);
+int trsh_ditto(char** args); // Command similar to echo in bash.
 
 //int trsh_exec(char** tokenizedData, int** filedes);
 
