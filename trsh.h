@@ -15,6 +15,7 @@
 #define RESIZE_CONST 2 // BUFFER_SIZE/RESIZE_CONST = the bytes added to the buffer once BUFFER_SIZE exceeded.
 #define TOKEN_BUFFER_SIZE 128 // The buffer size of the tokens.
 #define TOKEN_DELIMITERS " " // Chararcters that the parser uses to delimit text.
+#define ESC_PROGRAM -5 //int used to esc the program.
 
 char* trsh_LINEINPUT(void); //Handles taking in stdin, terminates with EOF or \n.
 
@@ -29,6 +30,8 @@ int trsh_INTERNAL(char **tokenizedData); //Runs internal trsh commands.
 int trsh_chdir(char* directory); //Changes the working directory of the current shell.
 
 int trsh_ditto(char** args); // Command similar to echo in bash.
+
+int trsh_environ(void); // Prints the environ variable of the current process.
 
 //int trsh_exec(char** tokenizedData, int** filedes);
 

@@ -3,6 +3,21 @@
 
 extern char **environ;
 
+char commands[10][10] =
+        {
+                "ditto",
+                "erase",
+                "morph",
+                "mimic",
+                "mkdirz",
+                "rmdirz",
+                "wipe",
+                "filez",
+
+        };
+int numCommands = 2;
+int numArgs;
+
 /**
  *
  *
@@ -11,12 +26,15 @@ extern char **environ;
  * @return EXIT_SUCCESS on success or EXIT_FAILURE/no return value on failure.
  */
 int main(int argc, char **argv) {
-    int numArgs;
+
 
     while(1) {
         char *input = trsh_LINEINPUT();
         char **tokenized = trsh_INPUTPARSE(input, &numArgs);
-        trsh_HANDLER(tokenized);
+        if(trsh_HANDLER(tokenized) == ESC_PROGRAM)
+        {
+            return EXIT_SUCCESS;
+        }
     }
 
 }
@@ -96,21 +114,29 @@ char **trsh_INPUTPARSE(char *input, int *numberOfTokens) {
 
 int trsh_HANDLER(char **tokenizedData)
 {
+    // Attempt to run the commands that need to run in the parent process.
     if(strcmp(tokenizedData[0], "chdir") == 0)
     {
         return trsh_chdir(tokenizedData[1]);
     }
+    else if(strcmp(tokenizedData[0], "esc") == 0)
+    {
+        return ESC_PROGRAM;
+    }
+    else if(strcmp(tokenizedData[0], "environ") == 0)
+    {
+        return trsh_environ();
+    }
     else
     {
-        if(0)
+        for(int i = 0; i < numCommands; i++)
         {
-            //If internal command, run trsh_INTERNAL
-            trsh_INTERNAL(tokenizedData);
+            if(strcmp(tokenizedData[0], commands[i]) == 0)
+            {
+                return trsh_INTERNAL(tokenizedData);
+            }
         }
-        else
-        {
-            return trsh_EXTERNAL(tokenizedData);
-        }
+        return trsh_EXTERNAL(tokenizedData);
     }
 }
 
@@ -148,6 +174,10 @@ int trsh_INTERNAL(char **tokenizedData)
     if(pid == 0) //Child process
     {
         //TODO: Open IO redirection, find program, run program, and exit.
+        if(strcmp(tokenizedData[0], "ditto") == 0)
+        {
+            trsh_ditto(tokenizedData);
+        }
     }
     else //Parent process
     {
@@ -157,14 +187,17 @@ int trsh_INTERNAL(char **tokenizedData)
 
 }
 
-int trsh_ditto(char** args)
-{
-    printf("Entered a internal command.\n");
-    return 0;
+int trsh_ditto(char** args) {
+    for(int i=1; i < numArgs; i++)
+    {
+        printf("%s", args[i]);
+        if(((numArgs-1) != i)) {
+            printf(" ");
+        }
+    }
+    printf("\n");
 }
-
-int trsh_chdir(char* directory)
-{
+int trsh_chdir(char* directory) {
     char pathName[PATH_MAX];
     realpath(directory, pathName); // Finds the full path.
     char envDir[PATH_MAX];
@@ -181,4 +214,8 @@ int trsh_chdir(char* directory)
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
+}
+int trsh_environ(void) {
+    char **env = environ;
+    while (*env) printf("%s\n", *env++);  // step through environment
 }
