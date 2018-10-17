@@ -18,11 +18,16 @@
 #define TOKEN_DELIMITERS " " // Chararcters that the parser uses to delimit text.
 #define ESC_PROGRAM -5 //int used to esc the program.
 
+int numArgs;
+extern char **environ;
+
 char* trsh_LINEINPUT(void); //Handles taking in stdin, terminates with EOF or \n.
 
 char** trsh_INPUTPARSE(char *input, int *numArgs); //Parses the input into tokens.
 
 int trsh_HANDLER(char **tokenizedData); //Handles command routing, and any commands that need to be run in master proc.
+
+int trsh_REDIRECTION(char **tokenizedData);
 
 int trsh_EXTERNAL(char **tokenizedData); //Runs external exec commands.
 
@@ -44,6 +49,6 @@ int trsh_mkdirz(char** args); // Creates a new directory if the path's parent ex
 
 int trsh_wipe(void); //Wipes the terminal display.
 
-//int trsh_exec(char** tokenizedData, int** filedes);
+
 
 #endif //INC_2_TRSH_H
