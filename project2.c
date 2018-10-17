@@ -13,14 +13,13 @@ char commands[10][10] =
                 "rmdirz",
                 "wipe",
                 "filez",
+                "help"
 
         };
-int numCommands = 2;
+int numCommands = 8;
 int numArgs;
 
 /**
- *
- *
  * @param argc the number of arguments passed into the program.
  * @param argv the arguments that were passed in.
  * @return EXIT_SUCCESS on success or EXIT_FAILURE/no return value on failure.
@@ -140,8 +139,7 @@ int trsh_HANDLER(char **tokenizedData)
     }
 }
 
-int trsh_EXTERNAL(char **tokenizedData)
-{
+int trsh_EXTERNAL(char **tokenizedData) {
     int pid = fork();
     if(pid == -1)
     {
@@ -150,7 +148,8 @@ int trsh_EXTERNAL(char **tokenizedData)
     }
     if(pid == 0)
     {
-        //this is the child, run the process.
+        //this is the child, do redirection and run the process.
+        //freopen(ahh, , stdin);
 
         exit(execvp(tokenizedData[0], tokenizedData));
     }
@@ -176,12 +175,37 @@ int trsh_INTERNAL(char **tokenizedData)
         //TODO: Open IO redirection, find program, run program, and exit.
         if(strcmp(tokenizedData[0], "ditto") == 0)
         {
-            trsh_ditto(tokenizedData);
+            exit(trsh_ditto(tokenizedData));
         }
+        else if(strcmp(tokenizedData[0], "wipe") == 0)
+        {
+            execvp("clear", tokenizedData);
+        }
+        else if(strcmp(tokenizedData[0], "erase") == 0)
+        {
+            exit(trsh_erase(tokenizedData));
+        }
+        else if(strcmp(tokenizedData[0], "filez") == 0)
+        {
+            exit(trsh_filez(tokenizedData));
+        }
+        else if(strcmp(tokenizedData[0], "rmdirz") == 0)
+        {
+            exit(trsh_rmdirz(tokenizedData));
+        }
+        else if(strcmp(tokenizedData[0], "wipe") == 0)
+        {
+            exit(trsh_wipe());
+        }
+        else if(strcmp(tokenizedData[0], "mkdirz") == 0)
+        {
+            exit(trsh_mkdirz(tokenizedData));
+        }
+
     }
     else //Parent process
     {
-        waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
+        waitpid(pid, NULL, WUNTRACED); // Wait until child is finished.
     }
 
 
@@ -190,12 +214,12 @@ int trsh_INTERNAL(char **tokenizedData)
 int trsh_ditto(char** args) {
     for(int i=1; i < numArgs; i++)
     {
-        printf("%s", args[i]);
-        if(((numArgs-1) != i)) {
+        printf("%s", args[i]); // Print the argument
+        if(((numArgs-1) != i)) { //Print a space only between each word.
             printf(" ");
         }
     }
-    printf("\n");
+    printf("\n"); // Print new line at the end of the statement.
 }
 int trsh_chdir(char* directory) {
     char pathName[PATH_MAX];
@@ -217,5 +241,65 @@ int trsh_chdir(char* directory) {
 }
 int trsh_environ(void) {
     char **env = environ;
-    while (*env) printf("%s\n", *env++);  // step through environment
+    while (*env) printf("%s\n", *env++);  // step through environment and print.
+}
+int trsh_erase(char** args)
+{
+    //TODO: Add check to see if file.
+    if(remove(args[1]) !=0)
+    {
+        fprintf(stderr, "trsh_erase: file not successfully erased.\n");
+        exit(EXIT_FAILURE);
+    }
+    exit(EXIT_SUCCESS);
+}
+
+int trsh_filez(char** args)
+{
+    char **tempArgs = calloc(3, sizeof(char*));
+    tempArgs[0] = "ls";
+    tempArgs[1] = "-1";
+    if(args[1] != NULL)
+    {
+        tempArgs[2] = args[1];
+    }
+    if(execvp(tempArgs[0], tempArgs) == -1)
+    {
+        fprintf(stderr, "trsh_wipe: Screen wipe failed.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int trsh_rmdirz(char** args)
+{
+    //TODO: Add check to see if directory.
+    if(remove(args[1]) !=0)
+    {
+        fprintf(stderr, "trsh_rmdirz: directory not erased. Either non-empty directory, a file, or directory does not exist.\n");
+        exit(EXIT_FAILURE);
+    }
+    exit(EXIT_SUCCESS);
+}
+
+int trsh_wipe(void)
+{
+    char **tempArgs = calloc(2, sizeof(char*));
+    tempArgs[0] = "clear";
+
+    if(execvp(tempArgs[0], tempArgs) == -1)
+    {
+        fprintf(stderr, "trsh_wipe: Screen wipe failed.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int trsh_mkdirz(char** args)
+{
+    //TODO: Add error checking and return values.
+    mkdir(args[1], 0777);
+    exit(EXIT_SUCCESS);
 }

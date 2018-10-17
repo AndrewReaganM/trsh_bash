@@ -10,6 +10,7 @@
 #include <libgen.h>
 #include <limits.h>
 #include <errno.h>
+#include <dirent.h>
 
 #define LINE_BUFFER_SIZE 1024 // The size of the buffer that is to be created.
 #define RESIZE_CONST 2 // BUFFER_SIZE/RESIZE_CONST = the bytes added to the buffer once BUFFER_SIZE exceeded.
@@ -32,6 +33,16 @@ int trsh_chdir(char* directory); //Changes the working directory of the current 
 int trsh_ditto(char** args); // Command similar to echo in bash.
 
 int trsh_environ(void); // Prints the environ variable of the current process.
+
+int trsh_erase(char** args); //Deletes a specific file.
+
+int trsh_filez(char** args); //Lists all files in the current directory or the directory provided.
+
+int trsh_rmdirz(char** args); // Removes empty directories.
+
+int trsh_mkdirz(char** args); // Creates a new directory if the path's parent exists, but the directory does not.
+
+int trsh_wipe(void); //Wipes the terminal display.
 
 //int trsh_exec(char** tokenizedData, int** filedes);
 

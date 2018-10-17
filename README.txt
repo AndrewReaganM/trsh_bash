@@ -13,3 +13,7 @@ How to allocate memory for a char array:
 Using realloc:
     https://www.tutorialspoint.com/c_standard_library/c_function_realloc.htm
 
+Listing all files in a directory:
+    https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
+execvp info:
+    https://linux.die.net/man/3/execvp
