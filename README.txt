@@ -15,5 +15,10 @@ Using realloc:
 
 Listing all files in a directory:
     https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
+
 execvp info:
     https://linux.die.net/man/3/execvp
+
+mkdir info:
+    https://linux.die.net/man/2/mkdir
+

@@ -145,8 +145,8 @@ int trsh_EXTERNAL(char **tokenizedData) {
     if(pid == 0)
     {
         //this is the child, do redirection and run the process.
-        //freopen(ahh, , stdin);
 
+        trsh_REDIRECTION(tokenizedData);
         exit(execvp(tokenizedData[0], tokenizedData));
     }
     else // Parent process.
@@ -210,24 +210,29 @@ int trsh_INTERNAL(char **tokenizedData)
 
 int trsh_REDIRECTION(char **tokenizedData)
 {
-    for(int i=0; i < numArgs; i++)
+    for(int i=0; i < numArgs-1; i++) //Check all but the last entry for i/o redirection symbols.
     {
         // Set up redirection in a given process.
         if(strcmp(tokenizedData[i], "<") == 0)
         {
             freopen(tokenizedData[i+1], "r", stdin);
+            printf("Input redirection set up.\n");
+            numArgs -= 2;
         }
         if(strcmp(tokenizedData[i], ">") == 0)
         {
             freopen(tokenizedData[i+1], "w+", stdout);
+            printf("Output redirection set up.\n");
+            numArgs -= 2;
         }
-        if(strcmp(tokenizedData[i], "<") == 0)
+        if(strcmp(tokenizedData[i], ">>") == 0)
         {
-            freopen(tokenizedData[i+1], "w", stdout);
-            fseek(tokenizedData[i+1], 0, SEEK_END);
+            freopen(tokenizedData[i+1], "a+", stdout);
+            //fseek(stdout, 0, SEEK_END);
+            printf("Output appending redirection set up.\n");
+            numArgs -= 2;
         }
-
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
 

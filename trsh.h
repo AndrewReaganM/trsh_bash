@@ -49,6 +49,10 @@ int trsh_mkdirz(char** args); // Creates a new directory if the path's parent ex
 
 int trsh_wipe(void); //Wipes the terminal display.
 
+int trsh_mimic(char **args);
+
+int trsh_morph(char **args);
+
 
 
 #endif //INC_2_TRSH_H
