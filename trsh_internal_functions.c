@@ -101,3 +101,33 @@ int trsh_mkdirz(char** args)
     }
     exit(EXIT_SUCCESS);
 }
+
+int trsh_mimic(char** args)
+{
+    int recursionFlag = 0;
+    int sourceIndex = -1;
+    int destinationIndex = -1;
+
+    // Check for flags and src/dst.
+    for(int i=0; i < numArgs; i++)
+    {
+        if(strcmp(args[i], "-r") == 0)
+        {
+            recursionFlag = 1; //Set the flag to 1
+        }
+        if(strcmp(args[i], "-r") != 0)
+        {
+            if(sourceIndex == -1)
+            {
+                sourceIndex = i;
+            }
+            else if(destinationIndex == -1)
+            {
+                destinationIndex = i;
+            }
+        }
+    }
+
+    
+
+}
