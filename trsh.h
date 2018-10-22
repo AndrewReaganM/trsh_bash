@@ -11,7 +11,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <dirent.h>
-#include <ftw.h>
+#include <fts.h>
 
 #define LINE_BUFFER_SIZE 1024 // The size of the buffer that is to be created.
 #define RESIZE_CONST 2 // BUFFER_SIZE/RESIZE_CONST = the bytes added to the buffer once BUFFER_SIZE exceeded.
@@ -21,6 +21,7 @@
 #define MIMIC 2 //Flag used for mimic
 #define MORPH 4 //Flag used for morph
 #define MAX_FILENAME 256
+#define HAS_FILES 3
 
 int numArgs;
 extern char **environ;
@@ -53,11 +54,17 @@ int trsh_mkdirz(char** args); // Creates a new directory if the path's parent ex
 
 int trsh_wipe(void); //Wipes the terminal display.
 
-int trsh_mimic(char **args);
+int recursiveFileOperation(int mode, int recursive_flag, char* source, char* destination);
 
-int trsh_morph(char **args);
+int trsh_mimic_morph(char** args);
 
 int isDir(const char *path);
+
+int trsh_fts_cmp(const FTSENT** one, const FTSENT** two);
+
+int fileCpy(char* source, char* destination);
+
+int recursivePathBuilder(int level, char* path, FTSENT* location);
 
 // *************************** Macros/Structs **************************
 
