@@ -8,6 +8,14 @@ int isDir(const char *path) {
     return S_ISDIR(statbuf.st_mode);
 }
 
+int hasFiles(const char *path)
+{
+    int var = 0;
+    struct dirent *drnt;
+    DIR *directory = opendir(path);
+
+}
+
 int trsh_mimic(char** args)
 {
     int recursionFlag = 0;
@@ -73,6 +81,9 @@ int trsh_mimic(char** args)
 
     if(isDir(sourceDirectory) && isDir(destinationDirectory)) // Both are directories.
     {
+        if()
+
+
 
     }
     else if(!(isDir(sourceDirectory)) && !(isDir(destinationDirectory))) // Neither are directories
@@ -87,7 +98,6 @@ int trsh_mimic(char** args)
     }
     else if(!(isDir(sourceDirectory)) && isDir(destinationDirectory)) //SRC is not a dir, DST is a dir.
     {
-
 
     }
 }
