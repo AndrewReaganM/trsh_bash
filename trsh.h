@@ -11,12 +11,16 @@
 #include <limits.h>
 #include <errno.h>
 #include <dirent.h>
+#include <ftw.h>
 
 #define LINE_BUFFER_SIZE 1024 // The size of the buffer that is to be created.
 #define RESIZE_CONST 2 // BUFFER_SIZE/RESIZE_CONST = the bytes added to the buffer once BUFFER_SIZE exceeded.
 #define TOKEN_BUFFER_SIZE 128 // The buffer size of the tokens.
 #define TOKEN_DELIMITERS " " // Chararcters that the parser uses to delimit text.
 #define ESC_PROGRAM -5 //int used to esc the program.
+#define MIMIC 2 //Flag used for mimic
+#define MORPH 4 //Flag used for morph
+#define MAX_FILENAME 256
 
 int numArgs;
 extern char **environ;
@@ -52,6 +56,18 @@ int trsh_wipe(void); //Wipes the terminal display.
 int trsh_mimic(char **args);
 
 int trsh_morph(char **args);
+
+int isDir(const char *path);
+
+// *************************** Macros/Structs **************************
+
+struct filemanip_st {
+    char src[MAX_FILENAME]; // This is the source file or the only file in case of an erase;
+    char dst[MAX_FILENAME];
+    unsigned int op; // 0 = erase; 1 = mimic; 2 = morph;
+    int recursion; // recursion flag
+};
+typedef struct filemanip_st filemanip;
 
 
 

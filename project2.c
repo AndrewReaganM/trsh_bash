@@ -30,10 +30,11 @@ int main(int argc, char **argv) {
         }
         char *input = trsh_LINEINPUT();
         char **tokenized = trsh_INPUTPARSE(input, &numArgs);
-        if(trsh_HANDLER(tokenized) == ESC_PROGRAM)
+        trsh_mimic(tokenized);
+        /* if(trsh_HANDLER(tokenized) == ESC_PROGRAM)
         {
             return EXIT_SUCCESS;
-        }
+        }*/
     }
 
 }
