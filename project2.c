@@ -162,40 +162,28 @@ int trsh_ROUTING(char **tokenizedData) {
         return trsh_environ(); //Print the environ variables.
     }
 
-    //Run other commands externally.
-    int pid = fork();
-    if (pid == -1) {
-        fprintf(stderr, "trsh_INTERNAL: fork unsuccessful\n");
-        exit(EXIT_FAILURE);
-    }
-    if (pid == 0) //Child process
-    {
-        if (strcmp(tokenizedData[0], "ditto") == 0) {
-            exit(trsh_ditto(tokenizedData));
+
+        else if (strcmp(tokenizedData[0], "ditto") == 0) {
+            return trsh_ditto(tokenizedData);
         } else if (strcmp(tokenizedData[0], "erase") == 0) {
-            exit(trsh_erase(tokenizedData));
+            return trsh_erase(tokenizedData);
         } else if (strcmp(tokenizedData[0], "filez") == 0) {
-            exit(trsh_filez(tokenizedData));
+            return trsh_filez(tokenizedData);
         } else if (strcmp(tokenizedData[0], "rmdirz") == 0) {
-            exit(trsh_rmdirz(tokenizedData));
+            return trsh_rmdirz(tokenizedData);
         } else if (strcmp(tokenizedData[0], "wipe") == 0) {
-            exit(trsh_wipe());
+            return trsh_wipe();
         } else if (strcmp(tokenizedData[0], "mkdirz") == 0) {
-            exit(trsh_mkdirz(tokenizedData));
+            return trsh_mkdirz(tokenizedData);
         } else if ((strcmp(tokenizedData[0], "morph") == 0) || (strcmp(tokenizedData[0], "mimic") == 0)) {
-            exit(trsh_mimic_morph(tokenizedData));
+            return trsh_mimic_morph(tokenizedData);
         } else if (strcmp(tokenizedData[0], "help") == 0) {
-            exit(trsh_help(tokenizedData));
+            return trsh_help(tokenizedData);
         } else{ //If an external command
             printf("Running external command: %s\n", tokenizedData[0]);
             //trsh_REDIRECTION(tokenizedData);
-            exit(execvp(tokenizedData[0], tokenizedData));
+            return execvp(tokenizedData[0], tokenizedData);
         }
-    } else //Parent process
-    {
-        waitpid(pid, NULL, WUNTRACED); // Wait until child is finished.
-        return EXIT_SUCCESS;
-    }
 }
 
 /**
