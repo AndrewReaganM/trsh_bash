@@ -35,11 +35,17 @@ int main(int argc, char **argv) {
     setbuf(stderr, NULL); //Sets the stderr buffer to NULL.
 
     while (1) {
-        char *input = trsh_LINEINPUT(&argc); //Take in input from stdin.-
+        char *input = trsh_LINEINPUT(argc); //Take in input from stdin.-
         char **tokenized = trsh_INPUTPARSE(input, &numArgs); //Parse string of input.
-        if (trsh_HANDLER(tokenized) == ESC_PROGRAM) { // Route commands internally or externally.
-            return EXIT_SUCCESS; // Exit gracefully if ESC is called.
+        for(int i=0; i < numArgs; i++)
+        {
+            printf("%s ", tokenized[i]);
         }
+        printf("\n");
+
+       /* if (trsh_HANDLER(tokenized) == ESC_PROGRAM) { // Route commands internally or externally.
+            return EXIT_SUCCESS; // Exit gracefully if ESC is called.
+        }*/
     }
 
 }
@@ -49,7 +55,7 @@ int main(int argc, char **argv) {
  *
  * @return c-string containing stdin until \n or EOF.
  */
-char *trsh_LINEINPUT(int *argc) {
+char *trsh_LINEINPUT(int argc) {
     int bufferSize = LINE_BUFFER_SIZE; //Size of line buffer
     int resize = RESIZE_CONST; //Multiplier for resizing line buffer.
     int length = 0; //Length of the current input.
@@ -59,7 +65,7 @@ char *trsh_LINEINPUT(int *argc) {
     char *cwdBuf; //Create a buffer for the current working directory.
     cwdBuf = calloc(PATH_MAX, sizeof(char));
     cwdBuf = getcwd(cwdBuf, PATH_MAX);
-    if (*argc < 2) {
+    if (argc < 2) {
         printf("%s==>", cwdBuf); //Print CWD and prompt.
     }
     lineBuffer = calloc(bufferSize, sizeof(char)); //Allocate space for the input.
@@ -93,7 +99,7 @@ char *trsh_LINEINPUT(int *argc) {
         }
     }
 
-    if(*argc > 1)
+    if(argc > 1)
     {
         printf("%s==>%s\n", cwdBuf, lineBuffer); //Prints CWD and command for macro file output.
     }
