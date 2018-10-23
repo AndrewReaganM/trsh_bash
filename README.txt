@@ -22,3 +22,27 @@ execvp info:
 mkdir info:
     https://linux.die.net/man/2/mkdir
 
+How to use fts:
+    http://man7.org/linux/man-pages/man3/fts.3.html
+
+fts example:
+    https://stackoverflow.com/questions/12609747/traversing-a-filesystem-with-fts3
+
+basename info:
+    http://man7.org/linux/man-pages/man3/basename.3.html
+
+Traversal info:
+    https://www.geeksforgeeks.org/tree-traversals-inorder-preorder-and-postorder/
+
+Remove info:
+    https://www.tutorialspoint.com/c_standard_library/c_function_remove.htm
+
+Stat file type testing info:
+    https://www.gnu.org/software/libc/manual/html_node/Testing-File-Type.html
+
+dirname info:
+    http://man7.org/linux/man-pages/man1/dirname.1.html
+
+Using stat for file metadata:
+    https://linux.die.net/man/2/stat
+

@@ -1,5 +1,9 @@
 #include "trsh.h"
-
+/**
+ * Ditto - repeats the input back to stdout.
+ * @param args the input in tokenized string form.
+ * @return success value.
+ */
 int trsh_ditto(char** args) {
     for(int i=1; i < numArgs; i++)
     {
@@ -9,7 +13,13 @@ int trsh_ditto(char** args) {
         }
     }
     printf("\n"); // Print new line at the end of the statement.
+    return EXIT_SUCCESS;
 }
+/**
+ * chdir - function that changes the working directory.
+ * @param directory the text that contains an absolute or relative path.
+ * @return success value.
+ */
 int trsh_chdir(char* directory) {
     char pathName[PATH_MAX];
     realpath(directory, pathName); // Finds the full path.
@@ -28,21 +38,36 @@ int trsh_chdir(char* directory) {
     }
     return EXIT_SUCCESS;
 }
+/**
+ * Print out environ variable.
+ * Code taken from Project 1 specification by Andrew Fagg and Christian Grant.
+ * @return success value.
+ */
 int trsh_environ(void) {
     char **env = environ;
     while (*env) printf("%s\n", *env++);  // step through environment and print.
+    return EXIT_SUCCESS;
 }
+/**
+ * Erase a file.
+ * @param args pointer to an array of pointers containing arguments.
+ * @return success or failure.
+ */
 int trsh_erase(char** args)
 {
     //TODO: Add check to see if file.
     if(remove(args[1]) !=0)
     {
         fprintf(stderr, "trsh_erase: file not successfully erased.\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
-
+/**
+ * Prints out files in current directory or directory supplied.
+ * @param args pointer to array of pointers containing arguments.
+ * @return success or failure.
+ */
 int trsh_filez(char** args)
 {
     char **tempArgs = calloc(3, sizeof(char*));
@@ -55,23 +80,30 @@ int trsh_filez(char** args)
     if(execvp(tempArgs[0], tempArgs) == -1)
     {
         fprintf(stderr, "trsh_wipe: Screen wipe failed.\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
 }
-
+/**
+ * Removes a specified directory.
+ * @param args rgs pointer to array of pointers containing arguments.
+ * @return success or failure.
+ */
 int trsh_rmdirz(char** args)
 {
     //TODO: Add check to see if directory.
     if(remove(args[1]) !=0)
     {
         fprintf(stderr, "trsh_rmdirz: directory not erased. Either non-empty directory, a file, or directory does not exist.\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
-
+/**
+ * Wipe the current terminal session.
+ * @return success or failure.
+ */
 int trsh_wipe(void)
 {
     char **tempArgs = calloc(2, sizeof(char*));
@@ -80,24 +112,28 @@ int trsh_wipe(void)
     if(execvp(tempArgs[0], tempArgs) == -1)
     {
         fprintf(stderr, "trsh_wipe: Screen wipe failed.\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
 }
-
+/**
+ * Make a directory.
+ * @param args rgs pointer to array of pointers containing arguments.
+ * @return success or failure
+ */
 int trsh_mkdirz(char** args)
 {
     //TODO: Add error checking and return values.
     if(args[1] == NULL)
     {
         fprintf(stderr, "trsh_mkdirz: Directory not provided.\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
     if(mkdir(args[1], 0777) != 0)
     {
         fprintf(stderr, "trsh_mkdirz: Directory not created.\n");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

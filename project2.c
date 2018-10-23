@@ -16,6 +16,8 @@ char commands[10][10] =
 int numCommands = 8;
 
 /**
+ * Loops through the program functions.
+ *
  * @param argc the number of arguments passed into the program.
  * @param argv the arguments that were passed in.
  * @return EXIT_SUCCESS on success or EXIT_FAILURE/no return value on failure.
@@ -30,15 +32,18 @@ int main(int argc, char **argv) {
         }
         char *input = trsh_LINEINPUT();
         char **tokenized = trsh_INPUTPARSE(input, &numArgs);
-        trsh_mimic_morph(tokenized);
-        /* if(trsh_HANDLER(tokenized) == ESC_PROGRAM)
+        if(trsh_HANDLER(tokenized) == ESC_PROGRAM)
         {
             return EXIT_SUCCESS;
-        }*/
+        }
     }
 
 }
-
+/**
+ * Takes in input from stdin and saves it to a c-string.
+ *
+ * @return c-string containing stdin until \n or EOF.
+ */
 char *trsh_LINEINPUT() {
     int bufferSize = LINE_BUFFER_SIZE;
     int resize = RESIZE_CONST;
@@ -81,7 +86,13 @@ char *trsh_LINEINPUT() {
         }
     }
 }
-
+/**
+ * Parses input taken in from the command line.
+ *
+ * @param input char pointer to a space separated string.
+ * @param numberOfTokens pointer to an int that stores the number of tokens.
+ * @return a pointer to an array of pointers containin the tokenized data.
+ */
 char **trsh_INPUTPARSE(char *input, int *numberOfTokens) {
     int bufferSize = TOKEN_BUFFER_SIZE;
     int numTok = 0;
@@ -111,35 +122,43 @@ char **trsh_INPUTPARSE(char *input, int *numberOfTokens) {
     *numberOfTokens = numTok;
     return tokenizedData;
 }
-
+/**
+ * Handles command routing for internal and external commands.
+ * @param tokenizedData pointer to array of pointers containing instructions.
+ * @return success value of function called.
+ */
 int trsh_HANDLER(char **tokenizedData)
 {
     // Attempt to run the commands that need to run in the parent process.
     if(strcmp(tokenizedData[0], "chdir") == 0)
     {
-        return trsh_chdir(tokenizedData[1]);
+        return trsh_chdir(tokenizedData[1]); //Change the directory.
     }
     else if(strcmp(tokenizedData[0], "esc") == 0)
     {
-        return ESC_PROGRAM;
+        return ESC_PROGRAM; //ESC the program.
     }
     else if(strcmp(tokenizedData[0], "environ") == 0)
     {
-        return trsh_environ();
+        return trsh_environ(); //Print the environ variables.
     }
     else
     {
         for(int i = 0; i < numCommands; i++)
         {
-            if(strcmp(tokenizedData[0], commands[i]) == 0)
+            if(strcmp(tokenizedData[0], commands[i]) == 0) //If command is internal.
             {
-                return trsh_INTERNAL(tokenizedData);
+                return trsh_INTERNAL(tokenizedData); //Run internal commands.
             }
         }
-        return trsh_EXTERNAL(tokenizedData);
+        return trsh_EXTERNAL(tokenizedData); //Run external commands.
     }
 }
-
+/**
+ * Handles external commands.
+ * @param tokenizedData pointer to array of pointers containing instructions.
+ * @return return EXIT_SUCCESS on successful parent wait.
+ */
 int trsh_EXTERNAL(char **tokenizedData) {
     int pid = fork();
     if(pid == -1)
@@ -159,10 +178,15 @@ int trsh_EXTERNAL(char **tokenizedData) {
     else // Parent process.
     {
         waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
+        return EXIT_SUCCESS;
     }
 
 }
-
+/**
+ * Handles internal commands.
+ * @param tokenizedData pointer to array of pointers containing instructions.
+ * @return return EXIT_SUCCESS after parent waits.
+ */
 int trsh_INTERNAL(char **tokenizedData)
 {
     //Check for redirection
@@ -175,8 +199,6 @@ int trsh_INTERNAL(char **tokenizedData)
     }
     if(pid == 0) //Child process
     {
-        trsh_REDIRECTION(tokenizedData); // Set up redirection in the current process.
-
         if(strcmp(tokenizedData[0], "ditto") == 0)
         {
             exit(trsh_ditto(tokenizedData));
@@ -205,16 +227,28 @@ int trsh_INTERNAL(char **tokenizedData)
         {
             exit(trsh_mkdirz(tokenizedData));
         }
-
+        else if((strcmp(tokenizedData[0], "morph") == 0) || (strcmp(tokenizedData[0], "mimic") == 0))
+        {
+            exit(trsh_mimic_morph(tokenizedData));
+        }
+        else if(strcmp(tokenizedData[0], "help") == 0)
+        {
+            //Run help command.
+        }
     }
     else //Parent process
     {
         waitpid(pid, NULL, WUNTRACED); // Wait until child is finished.
+        return EXIT_SUCCESS;
     }
-
-
 }
 
+/**
+ * Sets up redirection in a given process.
+ *
+ * @param tokenizedData pointer to array of pointers containing tokenized input.
+ * @return EXIT_SUCCESS.
+ */
 int trsh_REDIRECTION(char **tokenizedData)
 {
     for(int i=0; i < numArgs-1; i++) //Check all but the last entry for i/o redirection symbols.

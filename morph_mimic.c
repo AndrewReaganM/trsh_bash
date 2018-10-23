@@ -1,12 +1,21 @@
 #include "trsh.h"
 
-// Check if a file is a directory
+/**
+ * Check if the path is a directory.
+ * @param path c-string containing a path.
+ * @return non-zero if true.
+ */
 int isDir(const char *path) {
     struct stat statbuf;
     if (stat(path, &statbuf) != 0)
         return 0;
     return S_ISDIR(statbuf.st_mode);
 }
+/**
+ * Check if the path is a file.
+ * @param path c-string containing a path.
+ * @return non-zero if true.
+ */
 int isFile(const char *path)
 {
     struct stat statbuf;
@@ -41,7 +50,11 @@ int hasFiles(const char *path)
     return EXIT_SUCCESS;
 
 }
-
+/**
+ *
+ * @param args pointer to array of pointers containing the arguments.
+ * @return success or failure.
+ */
 int trsh_mimic_morph(char** args)
 {
     int mode = 0;
@@ -139,10 +152,6 @@ int trsh_mimic_morph(char** args)
     {
         if(hasFiles(sourceDirectory))
         {
-            if(!(isDir(destinationDirectory)))
-            {
-                mkdir(destinationDirectory)
-            }
             return recursiveFileOperation(mode, recursionFlag, sourceDirectory, destinationDirectory);
         }
 
@@ -181,7 +190,14 @@ int trsh_mimic_morph(char** args)
 
     }
 }
-
+/**
+ *
+ * @param mode MORPH for morph and MIMIC for mimic.
+ * @param recursive_flag 0 if no recursion, 1 if recursion.
+ * @param source c-string for source directory.
+ * @param destination c-string for destination directory.
+ * @return success/fail
+ */
 int recursiveFileOperation(int mode, int recursive_flag, char* source, char* destination)
 {
     FTS* srcFileStructure = NULL;
@@ -263,12 +279,22 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
     }
     return EXIT_SUCCESS;
 }
-
+/**
+ * Function for FTS to use.
+ * @param one
+ * @param two
+ * @return
+ */
 int trsh_fts_cmp(const FTSENT** one, const FTSENT** two)
 {
     return strcmp((*one)->fts_name, (*two)->fts_name);
 }
-
+/**
+ *
+ * @param source
+ * @param destination
+ * @return
+ */
 int fileCpy(char* source, char* destination)
 {
     int cpy;
