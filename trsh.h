@@ -31,13 +31,11 @@ char* trsh_LINEINPUT(int argc); //Handles taking in stdin, terminates with EOF o
 
 char** trsh_INPUTPARSE(char *input, int *numArgs); //Parses the input into tokens.
 
-int trsh_HANDLER(char **tokenizedData); //Handles command routing, and any commands that need to be run in master proc.
+
 
 int trsh_REDIRECTION(char **tokenizedData);
 
-int trsh_EXTERNAL(char **tokenizedData); //Runs external exec commands.
-
-int trsh_INTERNAL(char **tokenizedData); //Runs internal trsh commands.
+int trsh_ROUTING(char **tokenizedData); //Runs external exec commands.
 
 int trsh_chdir(char* directory); //Changes the working directory of the current shell.
 

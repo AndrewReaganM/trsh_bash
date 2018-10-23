@@ -37,15 +37,15 @@ int main(int argc, char **argv) {
     while (1) {
         char *input = trsh_LINEINPUT(argc); //Take in input from stdin.-
         char **tokenized = trsh_INPUTPARSE(input, &numArgs); //Parse string of input.
-        for(int i=0; i < numArgs; i++)
+        /*for(int i=0; i < numArgs; i++)
         {
             printf("%s ", tokenized[i]);
         }
-        printf("\n");
+        printf("\n");*/
 
-       /* if (trsh_HANDLER(tokenized) == ESC_PROGRAM) { // Route commands internally or externally.
+       if (trsh_ROUTING(tokenized) == ESC_PROGRAM) { // Route commands internally or externally.
             return EXIT_SUCCESS; // Exit gracefully if ESC is called.
-        }*/
+        }
     }
 
 }
@@ -145,61 +145,26 @@ char **trsh_INPUTPARSE(char *input, int *numberOfTokens) {
 }
 
 /**
- * Handles command routing for internal and external commands.
- * @param tokenizedData pointer to array of pointers containing instructions.
- * @return success value of function called.
- */
-int trsh_HANDLER(char **tokenizedData) {
-    // Attempt to run the commands that need to run in the parent process.
-    if (strcmp(tokenizedData[0], "chdir") == 0) {
-        return trsh_chdir(tokenizedData[1]); //Change the directory.
-    } else if (strcmp(tokenizedData[0], "esc") == 0) {
-        return ESC_PROGRAM; //ESC the program.
-    } else if (strcmp(tokenizedData[0], "environ") == 0) {
-        return trsh_environ(); //Print the environ variables.
-    } else {
-        for (int i = 0; i < numCommands; i++) {
-            if (strcmp(tokenizedData[0], commands[i]) == 0) //If command is internal.
-            {
-                return trsh_INTERNAL(tokenizedData); //Run internal commands.
-            }
-        }
-        return trsh_EXTERNAL(tokenizedData); //Run external commands.
-    }
-}
-
-/**
- * Handles external commands.
- * @param tokenizedData pointer to array of pointers containing instructions.
- * @return return EXIT_SUCCESS on successful parent wait.
- */
-int trsh_EXTERNAL(char **tokenizedData) {
-    int pid = fork();
-    if (pid == -1) {
-        fprintf(stderr, "trsh_EXTERNAL: fork unsuccessful\n");
-        exit(EXIT_FAILURE);
-    }
-    if (pid == 0) {
-        //this is the child, do redirection and run the process.
-
-        trsh_REDIRECTION(tokenizedData);
-        //char* stdinData = trsh_LINEINPUT();
-        //char** stdinTokens = trsh_INPUTPARSE(stdinData, &numArgs);
-        _exit(execvp(tokenizedData[0], tokenizedData));
-    } else // Parent process.
-    {
-        waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
-        return EXIT_SUCCESS;
-    }
-
-}
-
-/**
  * Handles internal commands.
  * @param tokenizedData pointer to array of pointers containing instructions.
  * @return return EXIT_SUCCESS after parent waits.
  */
-int trsh_INTERNAL(char **tokenizedData) {
+int trsh_ROUTING(char **tokenizedData) {
+    // Attempt to run the commands that need to run in the parent process.
+    if(strcmp(tokenizedData[0], "chdir") == 0)
+    {
+        return trsh_chdir(tokenizedData[1]); //Change the directory.
+    }
+    else if(strcmp(tokenizedData[0], "esc") == 0)
+    {
+        return ESC_PROGRAM; //ESC the program.
+    }
+    else if(strcmp(tokenizedData[0], "environ") == 0)
+    {
+        return trsh_environ(); //Print the environ variables.
+    }
+
+    //Run other commands externally.
     int pid = fork();
     if (pid == -1) {
         fprintf(stderr, "trsh_INTERNAL: fork unsuccessful\n");
@@ -225,6 +190,10 @@ int trsh_INTERNAL(char **tokenizedData) {
             exit(trsh_mimic_morph(tokenizedData));
         } else if (strcmp(tokenizedData[0], "help") == 0) {
             exit(trsh_help(tokenizedData));
+        } else{ //If an external command
+            printf("Running external command: %s\n", tokenizedData[0]);
+            trsh_REDIRECTION(tokenizedData);
+            exit(execvp(tokenizedData[0], tokenizedData));
         }
     } else //Parent process
     {
