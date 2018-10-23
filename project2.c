@@ -43,9 +43,7 @@ int main(int argc, char **argv) {
         }
         printf("\n");*/
 
-       if (trsh_ROUTING(tokenized) == ESC_PROGRAM) { // Route commands internally or externally.
-            return EXIT_SUCCESS; // Exit gracefully if ESC is called.
-        }
+       trsh_ROUTING(tokenized);
     }
 
 }

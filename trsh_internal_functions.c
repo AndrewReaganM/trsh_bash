@@ -22,7 +22,11 @@ int trsh_ditto(char** args) {
  */
 int trsh_chdir(char* directory) {
     char pathName[PATH_MAX];
-    realpath(directory, pathName); // Finds the full path.
+    if(realpath(directory, pathName) == NULL) // Finds the full path.
+    {
+        fprintf(stderr, "trsh_chdir: %s not resolved with realpath.\n", directory);
+        return EXIT_FAILURE;
+    }
     char envDir[PATH_MAX];
 
     if (-1 == chdir(pathName)) { //Change the directory using chdir
