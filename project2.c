@@ -155,7 +155,7 @@ int trsh_ROUTING(char **tokenizedData) {
     }
     else if(strcmp(tokenizedData[0], "esc") == 0)
     {
-        return ESC_PROGRAM; //ESC the program.
+        exit(EXIT_SUCCESS); //ESC the program.
     }
     else if(strcmp(tokenizedData[0], "environ") == 0)
     {
@@ -172,8 +172,6 @@ int trsh_ROUTING(char **tokenizedData) {
     {
         if (strcmp(tokenizedData[0], "ditto") == 0) {
             exit(trsh_ditto(tokenizedData));
-        } else if (strcmp(tokenizedData[0], "wipe") == 0) {
-            exit(execvp("clear", tokenizedData));
         } else if (strcmp(tokenizedData[0], "erase") == 0) {
             exit(trsh_erase(tokenizedData));
         } else if (strcmp(tokenizedData[0], "filez") == 0) {
