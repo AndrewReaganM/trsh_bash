@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <fts.h>
+#include <wait.h>
 
 #define LINE_BUFFER_SIZE 1024 // The size of the buffer that is to be created.
 #define RESIZE_CONST 2 // BUFFER_SIZE/RESIZE_CONST = the bytes added to the buffer once BUFFER_SIZE exceeded.
@@ -65,6 +66,9 @@ int trsh_fts_cmp(const FTSENT** one, const FTSENT** two);
 int fileCpy(char* source, char* destination);
 
 int recursivePathBuilder(int level, char* path, FTSENT* location);
+
+int trsh_help(char** args); // Prints the contents of the readme.
+
 
 // *************************** Macros/Structs **************************
 

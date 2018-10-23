@@ -1,3 +1,2 @@
 echo this is an echo
-esc
-
+cat testData.txt

@@ -13,7 +13,7 @@ char commands[10][10] =
                 "help"
 
         };
-int numCommands = 8;
+int numCommands = 9;
 
 /**
  * Loops through the program functions.
@@ -23,16 +23,22 @@ int numCommands = 8;
  * @return EXIT_SUCCESS on success or EXIT_FAILURE/no return value on failure.
  */
 int main(int argc, char **argv) {
+    const char READ = 'r'; //Represents READ for freopen.
+    if (argc > 1) {
+        if((freopen(argv[1], &READ, stdin)) == NULL)
+        {
+            return EXIT_FAILURE;
+        }
+    }
+
     setbuf(stdout, NULL); //Sets the buffer to NULL.
     setbuf(stderr, NULL); //Sets the stderr buffer to NULL.
-    if (argc > 1) {
-        freopen(argv[1], "r", stdin);
-    }
+
     while (1) {
-        char *input = trsh_LINEINPUT(&argc);
-        char **tokenized = trsh_INPUTPARSE(input, &numArgs);
-        if (trsh_HANDLER(tokenized) == ESC_PROGRAM) {
-            return EXIT_SUCCESS;
+        char *input = trsh_LINEINPUT(&argc); //Take in input from stdin.-
+        char **tokenized = trsh_INPUTPARSE(input, &numArgs); //Parse string of input.
+        if (trsh_HANDLER(tokenized) == ESC_PROGRAM) { // Route commands internally or externally.
+            return EXIT_SUCCESS; // Exit gracefully if ESC is called.
         }
     }
 
@@ -44,36 +50,39 @@ int main(int argc, char **argv) {
  * @return c-string containing stdin until \n or EOF.
  */
 char *trsh_LINEINPUT(int *argc) {
-    int bufferSize = LINE_BUFFER_SIZE;
-    int resize = RESIZE_CONST;
-    int length = 0;
-    char *lineBuffer;
-    int c;
+    int bufferSize = LINE_BUFFER_SIZE; //Size of line buffer
+    int resize = RESIZE_CONST; //Multiplier for resizing line buffer.
+    int length = 0; //Length of the current input.
+    char *lineBuffer; //c-string containing the input.
+    int c; //Character to handle the input from getchar.
 
-    char *cwdBuf;
+    char *cwdBuf; //Create a buffer for the current working directory.
     cwdBuf = calloc(PATH_MAX, sizeof(char));
     cwdBuf = getcwd(cwdBuf, PATH_MAX);
-    if(*argc < 2)
-    {
-        printf("%s==>", cwdBuf);
+    if (*argc < 2) {
+        printf("%s==>", cwdBuf); //Print CWD and prompt.
     }
-    lineBuffer = calloc(bufferSize, sizeof(char));
-    if (!lineBuffer) {
+    lineBuffer = calloc(bufferSize, sizeof(char)); //Allocate space for the input.
+    if (!lineBuffer) { //calloc error checking.
         fprintf(stderr, "trsh_LINEINPUT: memory allocation error\n");
         exit(EXIT_FAILURE);
     }
 
-    while((c = getchar()) != '\n')
-    {
-        if(c == EOF)
-        {
-            printf("%s==>", cwdBuf); //Print trailing command.
-            exit(EXIT_SUCCESS);
-        }
-        lineBuffer[length] = c;
-        length++;
+    while (1) {
+        c = getchar(); //Take in char from STDIN.
 
-        if (length >= bufferSize) { //Reallocate space if necessary.
+        if (c == EOF || c == '\n') {
+            lineBuffer[length] = '\0';
+            if (c == EOF) { //If EOF, exit the program entirely.
+                exit(EXIT_SUCCESS);
+            }
+            break;
+        } else {
+            lineBuffer[length] = c; //Save char into the c string.
+            length++;
+        }
+        //Reallocate space if necessary
+        if (length >= bufferSize) {
             bufferSize += bufferSize / 2;
             lineBuffer = realloc(lineBuffer, bufferSize);
             //Error checking
@@ -83,11 +92,12 @@ char *trsh_LINEINPUT(int *argc) {
             }
         }
     }
-    lineBuffer[length] = '\0';
+
     if(*argc > 1)
     {
-        printf("%s==>%s\n", cwdBuf, lineBuffer);
+        printf("%s==>%s\n", cwdBuf, lineBuffer); //Prints CWD and command for macro file output.
     }
+    free(cwdBuf);
     return lineBuffer;
 }
 
@@ -169,7 +179,7 @@ int trsh_EXTERNAL(char **tokenizedData) {
         trsh_REDIRECTION(tokenizedData);
         //char* stdinData = trsh_LINEINPUT();
         //char** stdinTokens = trsh_INPUTPARSE(stdinData, &numArgs);
-        exit(execvp(tokenizedData[0], tokenizedData));
+        _exit(execvp(tokenizedData[0], tokenizedData));
     } else // Parent process.
     {
         waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
@@ -184,8 +194,6 @@ int trsh_EXTERNAL(char **tokenizedData) {
  * @return return EXIT_SUCCESS after parent waits.
  */
 int trsh_INTERNAL(char **tokenizedData) {
-    //Check for redirection
-    //If redirection, create a pipe??? Or will stdin/stdout work?
     int pid = fork();
     if (pid == -1) {
         fprintf(stderr, "trsh_INTERNAL: fork unsuccessful\n");
@@ -196,7 +204,7 @@ int trsh_INTERNAL(char **tokenizedData) {
         if (strcmp(tokenizedData[0], "ditto") == 0) {
             exit(trsh_ditto(tokenizedData));
         } else if (strcmp(tokenizedData[0], "wipe") == 0) {
-            execvp("clear", tokenizedData);
+            exit(execvp("clear", tokenizedData));
         } else if (strcmp(tokenizedData[0], "erase") == 0) {
             exit(trsh_erase(tokenizedData));
         } else if (strcmp(tokenizedData[0], "filez") == 0) {
@@ -210,7 +218,7 @@ int trsh_INTERNAL(char **tokenizedData) {
         } else if ((strcmp(tokenizedData[0], "morph") == 0) || (strcmp(tokenizedData[0], "mimic") == 0)) {
             exit(trsh_mimic_morph(tokenizedData));
         } else if (strcmp(tokenizedData[0], "help") == 0) {
-            //Run help command.
+            exit(trsh_help(tokenizedData));
         }
     } else //Parent process
     {

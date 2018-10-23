@@ -137,3 +137,26 @@ int trsh_mkdirz(char** args)
     }
     return EXIT_SUCCESS;
 }
+
+int trsh_help(char** args) // Prints the contents of the readme.
+{
+    FILE *file;
+    int c;
+
+    file = fopen("/projects/2/README.txt", "r");
+
+    if(file == NULL)
+    {
+        fprintf(stderr, "trsh_help: file unable to be opened.\n");
+        return EXIT_FAILURE;
+    }
+    c = fgetc(file);
+    while(c != EOF)
+    {
+        printf("%c", c);
+        c = fgetc(file);
+    }
+
+    fclose(file);
+    return EXIT_SUCCESS;
+}

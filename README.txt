@@ -46,3 +46,6 @@ dirname info:
 Using stat for file metadata:
     https://linux.die.net/man/2/stat
 
+File printing guidance:
+    https://www.geeksforgeeks.org/c-program-print-contents-file/
+
