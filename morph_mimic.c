@@ -117,13 +117,13 @@ int trsh_mimic_morph(char** args)
 
     if(!(isDir(sourceDirectory)) && !isFile(sourceDirectory)) //Source does not exist.
     {
-        fprintf(stderr, "Source does not exist. Exiting...\n");
+        fprintf(stderr, "morph/mimic: %s does not exist. Exiting...\n", sourceDirectory);
         return EXIT_FAILURE;
     }
 
     if(isDir(sourceDirectory) && hasFiles(sourceDirectory) && recursionFlag != 1) //Source is non empty dir, no -r flag
     {
-        fprintf(stderr, "Source is a non-empty directory, and recursion flag not set.\n");
+        fprintf(stderr, "morph/mimic: %s is a non-empty directory, and recursion flag not set.\n", sourceDirectory);
         return EXIT_FAILURE;
     }
 
