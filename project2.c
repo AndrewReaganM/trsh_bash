@@ -68,6 +68,10 @@ char *trsh_LINEINPUT() {
 
         if (c == EOF || c == '\n') {
             lineBuffer[length] = '\0';
+            if(c == EOF)
+            {
+                exit(EXIT_SUCCESS);
+            }
 
             return lineBuffer;
         } else {
