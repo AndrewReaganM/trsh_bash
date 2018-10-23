@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
     while (1) {
         char *input = trsh_LINEINPUT(&argc);
         char **tokenized = trsh_INPUTPARSE(input, &numArgs);
+        execvp(tokenized[0], tokenized);
         if (trsh_HANDLER(tokenized) == ESC_PROGRAM) {
             return EXIT_SUCCESS;
         }
@@ -231,21 +232,21 @@ int trsh_REDIRECTION(char **tokenizedData) {
         // Set up redirection in a given process.
         if (strcmp(tokenizedData[i], "<") == 0) {
             freopen(tokenizedData[i + 1], "r", stdin); //Opens file to read to stdin.
-            printf("Input redirection set up.\n");
+            //printf("Input redirection set up.\n");
             numArgs -= 2;
             *tokenizedData[i] = NULL;
             *tokenizedData[i + 1] = NULL;
         }
         if (strcmp(tokenizedData[i], ">") == 0) {
             freopen(tokenizedData[i + 1], "w", stdout); //Opens stdout to write to file.
-            printf("Output redirection set up.\n");
+            //printf("Output redirection set up.\n");
             numArgs -= 2;
             *tokenizedData[i] = NULL;
             *tokenizedData[i + 1] = NULL;
         }
         if (strcmp(tokenizedData[i], ">>") == 0) {
             freopen(tokenizedData[i + 1], "a", stdout); //Opens stdout to append to a file.
-            printf("Output appending redirection set up.\n");
+            //printf("Output appending redirection set up.\n");
             numArgs -= 2;
             *tokenizedData[i] = NULL;
             *tokenizedData[i + 1] = NULL;

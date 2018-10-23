@@ -79,7 +79,7 @@ int trsh_mimic_morph(char** args)
         if(strcmp(args[i], "-r") == 0)
         {
             recursionFlag = 1;//Set the flag to 1
-            printf("Recursion flag set to %i.\n", recursionFlag);
+            //printf("Recursion flag set to %i.\n", recursionFlag);
         }
         if(strcmp(args[i], "-r") != 0)
         {
@@ -129,7 +129,14 @@ int trsh_mimic_morph(char** args)
 
     if(isFile(sourceDirectory)) //If the source is a valid file
     {
-        fileCpy(sourceDirectory, destinationDirectory);
+        char* tempDir = malloc(PATH_MAX);
+        strcpy(tempDir, destinationDirectory);
+        if(isDir(destinationDirectory))
+        {
+            strcat(tempDir, "/");
+            strcat(tempDir, basename(sourceDirectory));
+        }
+        fileCpy(sourceDirectory, tempDir);
         if(mode == MORPH)
         {
             remove(sourceDirectory);
