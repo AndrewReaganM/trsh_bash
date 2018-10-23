@@ -1,20 +1,4 @@
 #include "trsh.h"
-
-char commands[10][10] =
-        {
-                "ditto",
-                "erase",
-                "morph",
-                "mimic",
-                "mkdirz",
-                "rmdirz",
-                "wipe",
-                "filez",
-                "help"
-
-        };
-int numCommands = 9;
-
 /**
  * Loops through the program functions.
  *
@@ -65,12 +49,6 @@ int main(int argc, char **argv) {
         }
 
         char **tokenized = trsh_INPUTPARSE(lineBuffer, &numArgs); //Parse string of input.
-
-        /*for(int i=0; i < numArgs; i++)
-        {
-            printf("%s ", tokenized[i]);
-        }
-        printf("\n");*/
 
        trsh_ROUTING(tokenized);
     }
@@ -152,16 +130,18 @@ int trsh_ROUTING(char **tokenizedData) {
         } else if (strcmp(tokenizedData[0], "help") == 0) {
             return trsh_help(tokenizedData);
         } else{ //If an external command
-            //printf("Running external command: %s\n", tokenizedData[0]);
+            printf("Running external command: %s\n", tokenizedData[0]);
             int pid =  fork();
             if(pid == -1)
             {
-                //ERROR
+                fprintf(stderr, "trsh_ROUTING: Failed to fork the process for external command %s\n", tokenizedData[0]);
+                return EXIT_FAILURE;
             }
             if(pid == 0)
             {
                 trsh_REDIRECTION(tokenizedData);
                 execvp(tokenizedData[0], tokenizedData);
+                exit(EXIT_SUCCESS);
             }
 
             else

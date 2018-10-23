@@ -47,6 +47,7 @@ int hasFiles(const char *path)
             return HAS_FILES; //Contains a file or directory.
         }
     }
+    closedir(directory);
     return EXIT_SUCCESS;
 
 }
