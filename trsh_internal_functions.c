@@ -95,7 +95,7 @@ int trsh_rmdirz(char** args)
     //TODO: Add check to see if directory.
     if(remove(args[1]) !=0)
     {
-        fprintf(stderr, "trsh_rmdirz: directory not erased. Either non-empty directory, a file, or directory does not exist.\n");
+        fprintf(stderr, "trsh_rmdirz: %s: directory not erased. Either non-empty directory, a file, or directory does not exist.\n", args[1]);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -132,7 +132,7 @@ int trsh_mkdirz(char** args)
     }
     if(mkdir(args[1], 0777) != 0)
     {
-        fprintf(stderr, "trsh_mkdirz: Directory not created.\n");
+        fprintf(stderr, "trsh_mkdirz: %s: Directory not created.\n", args[1]);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

@@ -26,7 +26,7 @@
 int numArgs;
 extern char **environ;
 
-char* trsh_LINEINPUT(void); //Handles taking in stdin, terminates with EOF or \n.
+char* trsh_LINEINPUT(int *argc); //Handles taking in stdin, terminates with EOF or \n.
 
 char** trsh_INPUTPARSE(char *input, int *numArgs); //Parses the input into tokens.
 
