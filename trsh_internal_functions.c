@@ -74,7 +74,7 @@ int trsh_erase(char** args)
  */
 int trsh_filez(char** args)
 {
-    char **tempArgs = calloc(3, sizeof(char*));
+    char *tempArgs[3];
     tempArgs[0] = "ls";
     tempArgs[1] = "-1";
     if(args[1] != NULL)
@@ -88,7 +88,6 @@ int trsh_filez(char** args)
         fprintf(stderr, "trsh_filez: filez failed.\n");
         return EXIT_FAILURE;
     }
-    free(tempArgs);
     return EXIT_SUCCESS;
 }
 /**
