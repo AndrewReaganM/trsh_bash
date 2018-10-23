@@ -55,3 +55,6 @@ dkms.conf
 /cmake-build-debug/
 /.idea/
 .DS_Store
+dirz1.out.txt
+dirz1.txt
+*.txt

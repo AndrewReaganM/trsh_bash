@@ -24,7 +24,7 @@ int numCommands = 8;
  */
 int main(int argc, char **argv) {
     setbuf(stdout, NULL); //Sets the buffer to NULL.
-    setbuf(stderr, NULL);
+    setbuf(stderr, NULL); //Sets the stderr buffer to NULL.
     if (argc > 1) {
         freopen(argv[1], "r", stdin);
     }
@@ -67,6 +67,7 @@ char *trsh_LINEINPUT(int *argc) {
     {
         if(c == EOF)
         {
+            printf("%s==>", cwdBuf); //Print trailing command.
             exit(EXIT_SUCCESS);
         }
         lineBuffer[length] = c;

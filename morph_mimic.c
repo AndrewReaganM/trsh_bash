@@ -86,12 +86,12 @@ int trsh_mimic_morph(char** args)
             if(sourceIndex == -1)
             {
                 sourceIndex = i;
-                printf("Set source to %s.\n", args[sourceIndex]);
+                //printf("Set source to %s.\n", args[sourceIndex]);
             }
             else if(destinationIndex == -1)
             {
                 destinationIndex = i;
-                printf("Set destination to %s.\n", args[destinationIndex]);
+                //printf("Set destination to %s.\n", args[destinationIndex]);
             }
         }
     }
@@ -113,18 +113,6 @@ int trsh_mimic_morph(char** args)
 
     destinationDirectory = malloc(PATH_MAX);
     realpath(args[destinationIndex], destinationDirectory); // Get full path of destination.
-
-    // *********** Check the status of source and destination for debugging *************
-    //TODO: Remove this code at some point.
-    if(isDir(sourceDirectory))
-    {
-        printf("Source is a directory\n");
-    }
-    if(isDir(destinationDirectory))
-    {
-        printf("Destination is a directory\n");
-    }
-
     // ****************************** Cases ***********************************
 
     if(!(isDir(sourceDirectory)) && !isFile(sourceDirectory)) //Source does not exist.
