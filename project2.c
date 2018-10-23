@@ -31,7 +31,6 @@ int main(int argc, char **argv) {
     while (1) {
         char *input = trsh_LINEINPUT(&argc);
         char **tokenized = trsh_INPUTPARSE(input, &numArgs);
-        execvp(tokenized[0], tokenized);
         if (trsh_HANDLER(tokenized) == ESC_PROGRAM) {
             return EXIT_SUCCESS;
         }
