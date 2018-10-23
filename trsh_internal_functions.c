@@ -80,13 +80,15 @@ int trsh_filez(char** args)
     if(args[1] != NULL)
     {
         tempArgs[2] = args[1];
+    } else{
+        tempArgs[2] = NULL;
     }
     if(execvp(tempArgs[0], tempArgs) == -1)
     {
-        fprintf(stderr, "trsh_wipe: Screen wipe failed.\n");
+        fprintf(stderr, "trsh_filez: filez failed.\n");
         return EXIT_FAILURE;
     }
-
+    free(tempArgs);
     return EXIT_SUCCESS;
 }
 /**
