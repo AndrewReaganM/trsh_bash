@@ -7,6 +7,13 @@ int isDir(const char *path) {
         return 0;
     return S_ISDIR(statbuf.st_mode);
 }
+int isFile(const char *path)
+{
+    struct stat statbuf;
+    if (stat(path, &statbuf) != 0)
+        return 0;
+    return S_ISREG(statbuf.st_mode);
+}
 /**
  * Determines whether a directory is empty or not.
  *
@@ -107,8 +114,38 @@ int trsh_mimic_morph(char** args)
 
     // ****************************** Cases ***********************************
 
-    /*if(isDir(sourceDirectory) && isDir(destinationDirectory)) // Both are directories.
+    if(!(isDir(sourceDirectory)) && !isFile(sourceDirectory)) //Source does not exist.
     {
+        fprintf(stderr, "Source does not exist. Exiting...\n");
+        return EXIT_FAILURE;
+    }
+
+    if(isDir(sourceDirectory) && hasFiles(sourceDirectory) && recursionFlag != 1) //Source is non empty dir, no -r flag
+    {
+        fprintf(stderr, "Source is a non-empty directory, and recursion flag not set.\n");
+        return EXIT_FAILURE;
+    }
+
+    if(isFile(sourceDirectory)) //If the source is a valid file
+    {
+        fileCpy(sourceDirectory, destinationDirectory);
+        if(mode == MORPH)
+        {
+            remove(sourceDirectory);
+        }
+        return EXIT_SUCCESS;
+    }
+    if(isDir(sourceDirectory))
+    {
+        if(hasFiles(sourceDirectory))
+        {
+            if(!(isDir(destinationDirectory)))
+            {
+                mkdir(destinationDirectory)
+            }
+            return recursiveFileOperation(mode, recursionFlag, sourceDirectory, destinationDirectory);
+        }
+
         if(hasFiles(sourceDirectory) != HAS_FILES) // Source is empty
         {
             char* moveFileName = malloc(PATH_MAX);
@@ -130,35 +167,19 @@ int trsh_mimic_morph(char** args)
                 return EXIT_FAILURE;
             }
             free(moveFileName);
+            if(mode == MORPH)
+            {
+                if(remove(sourceDirectory))
+                {
+                    fprintf(stderr, "Unable to remove %s\n", sourceDirectory);
+                    return EXIT_FAILURE;
+                }
+            }
             return EXIT_SUCCESS;
         }
 
-        if(recursionFlag != 1)
-        {
-            fprintf(stderr, "%s contains files and -r was not supplied, exiting...", sourceDirectory);
-            return EXIT_FAILURE;
-        }
-        // Recursively move directories.
-
-
 
     }
-    else if(!(isDir(sourceDirectory)) && !(isDir(destinationDirectory))) // Neither are directories
-    {
-
-
-    }
-    else if(isDir(sourceDirectory) && !(isDir(destinationDirectory))) //SRC is a dir, DST is not a dir.
-    {
-
-
-    }
-    else if(!(isDir(sourceDirectory)) && isDir(destinationDirectory)) //SRC is not a dir, DST is a dir.
-    {
-
-    }*/
-
-    recursiveFileOperation(mode, recursionFlag, sourceDirectory, destinationDirectory);
 }
 
 int recursiveFileOperation(int mode, int recursive_flag, char* source, char* destination)
@@ -181,8 +202,12 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
                 char* tempDirName = malloc(PATH_MAX);
                 strcpy(tempDirName, destination);
                 recursivePathBuilder(parent->fts_level, tempDirName, parent);
-                printf("New directory will be: %s\n", tempDirName);
-                mkdir(tempDirName, 0777);
+                //printf("New directory will be: %s\n", tempDirName);
+                if(mkdir(tempDirName, 0777) == EXIT_FAILURE)
+                {
+                    fprintf(stderr, "recursiveOperation: creation of directory %s unsuccessful.\n", tempDirName);
+                    return EXIT_FAILURE;
+                }
 
 
             }
@@ -205,12 +230,17 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
                     char* dstCpy = malloc(PATH_MAX);
                     strcpy(dstCpy, destination);
                     recursivePathBuilder(child->fts_level, dstCpy, child);
-                    printf("Copying %s to %s\n", srcCpy, dstCpy);
-                    fileCpy(srcCpy, dstCpy);
+                    //printf("Copying %s to %s\n", srcCpy, dstCpy);
+                    if(fileCpy(srcCpy, dstCpy) == EXIT_FAILURE)
+                    {
+                        fprintf(stderr, "recursiveOperation: copying of file %s unsuccessful.\n", child->fts_name);
+                        return EXIT_FAILURE;
+                    }
                     if(mode == MORPH) {
                         if(remove(srcCpy) != 0)
                         {
                             fprintf(stderr, "recursiveOperation: removal of file %s unsuccessful.\n", child->fts_name);
+                            return EXIT_FAILURE;
                         }
                     }
                     free(srcCpy);
@@ -218,18 +248,19 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
                 }
                 child = child->fts_link;
             }
-            if(mode == MORPH) {
+            if(mode == MORPH && parent->fts_info == FTS_D && (strcmp(parent->fts_name, basename(source)) != 0)) {
                 if (remove(parent->fts_name) != 0) {
                     fprintf(stderr, "recursiveOperation: removal of directory %s unsuccessful.\n", parent->fts_name);
+                    return EXIT_FAILURE;
                 }
             }
         }
     }
+    fts_close(srcFileStructure);
     if(mode == MORPH)
     {
         remove(source);
     }
-    fts_close(srcFileStructure);
     return EXIT_SUCCESS;
 }
 
@@ -247,7 +278,7 @@ int fileCpy(char* source, char* destination)
     sourceFile = fopen(source, "r"); //Attempt to open source.
 
     if (sourceFile == NULL) { //If unsuccessful, failure.
-        fprintf(stderr, "mimic: Invalid Source.\n");
+        fprintf(stderr, "mimic/morph: Invalid Source.\n");
         fflush(stderr);
         return EXIT_FAILURE;
     }
@@ -256,7 +287,7 @@ int fileCpy(char* source, char* destination)
 
     if (targetFile == NULL) { //If unsuccessful, failure.
         fclose(sourceFile);
-        fprintf(stderr, "mimic: Invalid Destination. %s\n", destination);
+        fprintf(stderr, "mimic/morph: Invalid Destination. %s\n", destination);
         fflush(stderr);
         return EXIT_FAILURE;
     }
