@@ -188,7 +188,7 @@ int trsh_ROUTING(char **tokenizedData) {
             exit(trsh_help(tokenizedData));
         } else{ //If an external command
             printf("Running external command: %s\n", tokenizedData[0]);
-            trsh_REDIRECTION(tokenizedData);
+            //trsh_REDIRECTION(tokenizedData);
             exit(execvp(tokenizedData[0], tokenizedData));
         }
     } else //Parent process
