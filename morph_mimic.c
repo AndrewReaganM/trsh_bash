@@ -181,9 +181,9 @@ int trsh_mimic_morph(char** args)
             }
             return EXIT_SUCCESS;
         }
-
-
+        return EXIT_SUCCESS;
     }
+    return EXIT_SUCCESS;
 }
 /**
  *
