@@ -118,6 +118,7 @@ int trsh_ROUTING(char **tokenizedData) {
         if (pid == 0) {
             trsh_REDIRECTION(tokenizedData);
             trsh_filez(tokenizedData);
+            exit(EXIT_SUCCESS);
         } else {
             //PARENT
             waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
@@ -154,7 +155,10 @@ int trsh_ROUTING(char **tokenizedData) {
         }
         if (pid == 0) {
             trsh_REDIRECTION(tokenizedData);
-            execvp(tokenizedData[0], tokenizedData);
+            if(execvp(tokenizedData[0], tokenizedData) == -1)
+            {
+                exit(EXIT_FAILURE);
+            }
         } else {
             //PARENT
             waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
