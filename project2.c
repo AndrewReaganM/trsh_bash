@@ -178,14 +178,19 @@ int trsh_REDIRECTION(char **tokenizedData) {
     {
         // Set up redirection in a given process.
         if (strcmp(tokenizedData[i], "<") == 0) {
-            freopen(tokenizedData[i + 1], "r", stdin); //Opens file to read to stdin.
-            //printf("Input redirection set up.\n");
-            numArgs -= 2;
-            *tokenizedData[i] = NULL;
-            *tokenizedData[i + 1] = NULL;
+            if(access(tokenizedData[i+1], R_OK) == 0)
+            {
+                freopen(tokenizedData[i + 1], "r", stdin); //Opens file to read to stdin.
+                //printf("Input redirection set up.\n");
+
+                numArgs -= 2;
+                *tokenizedData[i] = NULL;
+                *tokenizedData[i + 1] = NULL;
+            }
+
         }
         if (strcmp(tokenizedData[i], ">") == 0) {
-            freopen(tokenizedData[i + 1], "w", stdout); //Opens stdout to write to file.
+            freopen(tokenizedData[i + 1], "wb", stdout); //Opens stdout to write to file.
             //printf("Output redirection set up.\n");
             numArgs -= 2;
             *tokenizedData[i] = NULL;

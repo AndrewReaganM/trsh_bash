@@ -1,3 +1,10 @@
+Andrew Massey
+CS 3113
+
+Project 2
+
+Sources Cited:
+
 General structure and implementation:
     https://brennan.io/2015/01/16/write-a-shell-in-c/
 
