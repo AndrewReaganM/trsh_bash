@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
         char **tokenized = trsh_INPUTPARSE(lineBuffer, &numArgs); //Parse string of input.
 
         trsh_ROUTING(tokenized);
+        free(tokenized);
     }
 
 }
@@ -64,7 +65,7 @@ int main(int argc, char **argv) {
 char **trsh_INPUTPARSE(char *input, int *numberOfTokens) {
     int bufferSize = TOKEN_BUFFER_SIZE;
     int numTok = 0;
-    char **tokenizedData = malloc(bufferSize * sizeof(char *));
+    char **tokenizedData = calloc(bufferSize, sizeof(char *));
     char *tokenPointer;
 
     if (!tokenizedData) {
@@ -145,7 +146,7 @@ int trsh_ROUTING(char **tokenizedData) {
     } else if (strcmp(tokenizedData[0], "help") == 0) {
         return trsh_help(tokenizedData);
     } else { //If an external command
-        printf("Running external command: %s\n", tokenizedData[0]);
+        //printf("Running external command: %s\n", tokenizedData[0]);
         int pid = fork();
         if (pid == -1) {
             fprintf(stderr, "trsh_ROUTING: Failed to fork the process for external command %s\n", tokenizedData[0]);
