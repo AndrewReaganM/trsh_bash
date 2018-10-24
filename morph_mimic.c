@@ -116,7 +116,7 @@ int trsh_mimic_morph(char** args)
     realpath(args[destinationIndex], destinationDirectory); // Get full path of destination.
     // ****************************** Cases ***********************************
 
-    if(!(isDir(sourceDirectory)) && !isFile(sourceDirectory)) //Source does not exist.
+    if(!(isDir(sourceDirectory)) && !(isFile(sourceDirectory))) //Source does not exist.
     {
         fprintf(stderr, "morph/mimic: %s does not exist. Exiting...\n", sourceDirectory);
         return EXIT_FAILURE;

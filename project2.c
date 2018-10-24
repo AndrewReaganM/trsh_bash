@@ -1,4 +1,5 @@
 #include "trsh.h"
+
 /**
  * Loops through the program functions.
  *
@@ -9,8 +10,7 @@
 int main(int argc, char **argv) {
     const char READ = 'r'; //Represents READ for freopen.
     if (argc > 1) {
-        if((freopen(argv[1], &READ, stdin)) == NULL)
-        {
+        if ((freopen(argv[1], &READ, stdin)) == NULL) {
             return EXIT_FAILURE;
         }
     }
@@ -43,14 +43,13 @@ int main(int argc, char **argv) {
             ++length;
         }
 
-        if(argc > 1)
-        {
+        if (argc > 1) {
             printf("%s==>%s\n", cwdBuf, lineBuffer); //Prints CWD and command for macro file output.
         }
 
         char **tokenized = trsh_INPUTPARSE(lineBuffer, &numArgs); //Parse string of input.
 
-       trsh_ROUTING(tokenized);
+        trsh_ROUTING(tokenized);
     }
 
 }
@@ -99,58 +98,68 @@ char **trsh_INPUTPARSE(char *input, int *numberOfTokens) {
  */
 int trsh_ROUTING(char **tokenizedData) {
     // Attempt to run the commands that need to run in the parent process.
-    if(strcmp(tokenizedData[0], "chdir") == 0)
-    {
+    if (strcmp(tokenizedData[0], "chdir") == 0) {
         return trsh_chdir(tokenizedData[1]); //Change the directory.
-    }
-    else if(strcmp(tokenizedData[0], "esc") == 0)
-    {
+    } else if (strcmp(tokenizedData[0], "esc") == 0) {
         exit(EXIT_SUCCESS); //ESC the program.
-    }
-    else if(strcmp(tokenizedData[0], "environ") == 0)
-    {
+    } else if (strcmp(tokenizedData[0], "environ") == 0) {
         return trsh_environ(); //Print the environ variables.
-    }
-
-
-        else if (strcmp(tokenizedData[0], "ditto") == 0) {
-            return trsh_ditto(tokenizedData);
-        } else if (strcmp(tokenizedData[0], "erase") == 0) {
-            return trsh_erase(tokenizedData);
-        } else if (strcmp(tokenizedData[0], "filez") == 0) {
-            return trsh_filez(tokenizedData);
-        } else if (strcmp(tokenizedData[0], "rmdirz") == 0) {
-            return trsh_rmdirz(tokenizedData);
-        } else if (strcmp(tokenizedData[0], "wipe") == 0) {
-            return trsh_wipe();
-        } else if (strcmp(tokenizedData[0], "mkdirz") == 0) {
-            return trsh_mkdirz(tokenizedData);
-        } else if ((strcmp(tokenizedData[0], "morph") == 0) || (strcmp(tokenizedData[0], "mimic") == 0)) {
-            return trsh_mimic_morph(tokenizedData);
-        } else if (strcmp(tokenizedData[0], "help") == 0) {
-            return trsh_help(tokenizedData);
-        } else{ //If an external command
-            printf("Running external command: %s\n", tokenizedData[0]);
-            int pid =  fork();
-            if(pid == -1)
-            {
-                fprintf(stderr, "trsh_ROUTING: Failed to fork the process for external command %s\n", tokenizedData[0]);
-                return EXIT_FAILURE;
-            }
-            if(pid == 0)
-            {
-                trsh_REDIRECTION(tokenizedData);
-                execvp(tokenizedData[0], tokenizedData);
-                exit(EXIT_SUCCESS);
-            }
-
-            else
-            {
-                //PARENT
-                waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
-                return EXIT_SUCCESS;
-            }
+    } else if (strcmp(tokenizedData[0], "ditto") == 0) {
+        return trsh_ditto(tokenizedData);
+    } else if (strcmp(tokenizedData[0], "erase") == 0) {
+        return trsh_erase(tokenizedData);
+    } else if (strcmp(tokenizedData[0], "filez") == 0) {
+        int pid = fork();
+        if (pid == -1) {
+            fprintf(stderr, "trsh_ROUTING: Failed to fork the process for external command %s\n", tokenizedData[0]);
+            return EXIT_FAILURE;
         }
+        if (pid == 0) {
+            trsh_REDIRECTION(tokenizedData);
+            trsh_filez(tokenizedData);
+        } else {
+            //PARENT
+            waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
+            return EXIT_SUCCESS;
+        }
+    } else if (strcmp(tokenizedData[0], "rmdirz") == 0) {
+        return trsh_rmdirz(tokenizedData);
+    } else if (strcmp(tokenizedData[0], "wipe") == 0) {
+        int pid = fork();
+        if (pid == -1) {
+            fprintf(stderr, "trsh_ROUTING: Failed to fork the process for external command %s\n", tokenizedData[0]);
+            return EXIT_FAILURE;
+        }
+        if (pid == 0) {
+            trsh_REDIRECTION(tokenizedData);
+            trsh_wipe();
+        } else {
+            //PARENT
+            waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
+            return EXIT_SUCCESS;
+        }
+    } else if (strcmp(tokenizedData[0], "mkdirz") == 0) {
+        return trsh_mkdirz(tokenizedData);
+    } else if ((strcmp(tokenizedData[0], "morph") == 0) || (strcmp(tokenizedData[0], "mimic") == 0)) {
+        return trsh_mimic_morph(tokenizedData);
+    } else if (strcmp(tokenizedData[0], "help") == 0) {
+        return trsh_help(tokenizedData);
+    } else { //If an external command
+        printf("Running external command: %s\n", tokenizedData[0]);
+        int pid = fork();
+        if (pid == -1) {
+            fprintf(stderr, "trsh_ROUTING: Failed to fork the process for external command %s\n", tokenizedData[0]);
+            return EXIT_FAILURE;
+        }
+        if (pid == 0) {
+            trsh_REDIRECTION(tokenizedData);
+            execvp(tokenizedData[0], tokenizedData);
+        } else {
+            //PARENT
+            waitpid(pid, NULL, WUNTRACED); //Wait until child is finished.
+            return EXIT_SUCCESS;
+        }
+    }
 }
 
 /**
