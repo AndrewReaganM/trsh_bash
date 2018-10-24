@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
         while ((inputChar = getchar()) != '\n' && length < 1000) {
             if (inputChar == EOF) //If the macro file ends, print a following prompt.
             {
-                printf("%s==>", cwdBuf);
+                printf("%s==>", cwdBuf); //Print trailing prompt.
                 return EXIT_SUCCESS;
             }
 
@@ -49,8 +49,8 @@ int main(int argc, char **argv) {
 
         char **tokenized = trsh_INPUTPARSE(lineBuffer, &numArgs); //Parse string of input.
 
-        trsh_ROUTING(tokenized);
-        free(tokenized);
+        trsh_ROUTING(tokenized); //Send args to the command router.
+        free(tokenized); //Free tokenized array.
     }
 
 }
@@ -72,10 +72,8 @@ char **trsh_INPUTPARSE(char *input, int *numberOfTokens) {
         fprintf(stderr, "trsh_INPUTPARSE: memory allocation error - pointer array\n");
         exit(EXIT_FAILURE);
     }
-
-    tokenPointer = strtok(input, TOKEN_DELIMITERS);
-
-    while (tokenPointer != NULL) {
+    tokenPointer = strtok(input, TOKEN_DELIMITERS); //Get a pointer to the first token.
+    while (tokenPointer != NULL) { //Checking to see if token exists.
         tokenizedData[numTok] = tokenPointer;
         if (numTok >= bufferSize) {
             bufferSize += bufferSize;
@@ -86,14 +84,15 @@ char **trsh_INPUTPARSE(char *input, int *numberOfTokens) {
             }
         }
         numTok++;
-        tokenPointer = strtok(0, TOKEN_DELIMITERS);
+        tokenPointer = strtok(0, TOKEN_DELIMITERS); //Get next pointer
     }
     *numberOfTokens = numTok;
-    return tokenizedData;
+    return tokenizedData; //Return the array of pointers.
 }
 
 /**
- * Handles internal commands.
+ * Handles internal and external command routing.
+ *
  * @param tokenizedData pointer to array of pointers containing instructions.
  * @return return EXIT_SUCCESS after parent waits.
  */
@@ -109,7 +108,7 @@ int trsh_ROUTING(char **tokenizedData) {
         return trsh_ditto(tokenizedData);
     } else if (strcmp(tokenizedData[0], "erase") == 0) {
         return trsh_erase(tokenizedData);
-    } else if (strcmp(tokenizedData[0], "filez") == 0) {
+    } else if (strcmp(tokenizedData[0], "filez") == 0) { //Filez requires fork.
         int pid = fork();
         if (pid == -1) {
             fprintf(stderr, "trsh_ROUTING: Failed to fork the process for external command %s\n", tokenizedData[0]);
@@ -126,7 +125,7 @@ int trsh_ROUTING(char **tokenizedData) {
         }
     } else if (strcmp(tokenizedData[0], "rmdirz") == 0) {
         return trsh_rmdirz(tokenizedData);
-    } else if (strcmp(tokenizedData[0], "wipe") == 0) {
+    } else if (strcmp(tokenizedData[0], "wipe") == 0) { //Wipe requires fork.
         int pid = fork();
         if (pid == -1) {
             fprintf(stderr, "trsh_ROUTING: Failed to fork the process for external command %s\n", tokenizedData[0]);
@@ -157,7 +156,7 @@ int trsh_ROUTING(char **tokenizedData) {
             trsh_REDIRECTION(tokenizedData);
             if(execvp(tokenizedData[0], tokenizedData) == -1)
             {
-                fprintf(stderr,"trsh: Command not recognized.\n");
+                fprintf(stderr,"trsh: Command not recognized.\n"); //If failure, return EXIT_FAILURE
                 exit(EXIT_FAILURE);
             }
         } else {
@@ -200,6 +199,5 @@ int trsh_REDIRECTION(char **tokenizedData) {
             *tokenizedData[i + 1] = NULL;
         }
     }
-    return EXIT_SUCCESS;
+    return EXIT_SUCCESS; //Return EXIT_SUCCESS regardless.
 }
-
