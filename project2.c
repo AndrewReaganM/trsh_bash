@@ -157,6 +157,7 @@ int trsh_ROUTING(char **tokenizedData) {
             trsh_REDIRECTION(tokenizedData);
             if(execvp(tokenizedData[0], tokenizedData) == -1)
             {
+                fprintf(stderr,"trsh: Command not recognized.\n");
                 exit(EXIT_FAILURE);
             }
         } else {

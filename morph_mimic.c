@@ -157,7 +157,7 @@ int trsh_mimic_morph(char** args)
             strcpy(moveFileName, destinationDirectory);
             strcat(moveFileName, "/");
             strcat(moveFileName, basename(sourceDirectory));
-            printf("%s\n", moveFileName);
+            //printf("%s\n", moveFileName);
 
             if(mkdir(moveFileName, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
             {
@@ -210,7 +210,6 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
             child = fts_children(srcFileStructure, 0);
             if(parent->fts_info == FTS_D)
             {
-                //TODO: Will only create directories on one level. Find way to properly create destination path.
                 char* tempDirName = malloc(PATH_MAX);
                 strcpy(tempDirName, destination);
                 recursivePathBuilder(parent->fts_level, tempDirName, parent);
@@ -220,10 +219,7 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
                     fprintf(stderr, "recursiveOperation: creation of directory %s unsuccessful.\n", tempDirName);
                     return EXIT_FAILURE;
                 }
-
-
             }
-
             if(errno != 0)
             {
                 fprintf(stderr, "Error calling fts_children\n");
@@ -238,7 +234,6 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
                     strcat(srcCpy, "/");
                     strcat(srcCpy, child->fts_name);
 
-                    //TODO: Will only copy files up to one level. Find way to properly create destination path.
                     char* dstCpy = malloc(PATH_MAX);
                     strcpy(dstCpy, destination);
                     recursivePathBuilder(child->fts_level, dstCpy, child);
