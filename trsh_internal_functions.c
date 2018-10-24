@@ -74,9 +74,10 @@ int trsh_erase(char** args)
  */
 int trsh_filez(char** args)
 {
-    char *tempArgs[3];
+    char *tempArgs[4];
     tempArgs[0] = "ls";
     tempArgs[1] = "-1";
+    tempArgs[3] = NULL;
     if(args[1] != NULL)
     {
         tempArgs[2] = args[1];
