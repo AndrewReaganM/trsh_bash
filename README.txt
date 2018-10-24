@@ -1,3 +1,10 @@
+Andrew Massey
+CS 3113
+
+Project 2
+
+Sources Cited:
+
 General structure and implementation:
     https://brennan.io/2015/01/16/write-a-shell-in-c/
 
@@ -48,4 +55,7 @@ Using stat for file metadata:
 
 File printing guidance:
     https://www.geeksforgeeks.org/c-program-print-contents-file/
+
+Finding if directory is empty:
+    https://stackoverflow.com/questions/6383584/check-if-a-directory-is-empty-using-c-on-linux
 

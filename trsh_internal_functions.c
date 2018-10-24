@@ -1,6 +1,7 @@
 #include "trsh.h"
 /**
  * Ditto - repeats the input back to stdout.
+ *
  * @param args the input in tokenized string form.
  * @return success value.
  */
@@ -17,12 +18,17 @@ int trsh_ditto(char** args) {
 }
 /**
  * chdir - function that changes the working directory.
+ *
  * @param directory the text that contains an absolute or relative path.
  * @return success value.
  */
 int trsh_chdir(char* directory) {
     char pathName[PATH_MAX];
-    realpath(directory, pathName); // Finds the full path.
+    if(realpath(directory, pathName) == NULL) // Finds the full path.
+    {
+        fprintf(stderr, "trsh_chdir: %s not resolved with realpath.\n", directory);
+        return EXIT_FAILURE;
+    }
     char envDir[PATH_MAX];
 
     if (-1 == chdir(pathName)) { //Change the directory using chdir
@@ -40,7 +46,9 @@ int trsh_chdir(char* directory) {
 }
 /**
  * Print out environ variable.
+ *
  * Code taken from Project 1 specification by Andrew Fagg and Christian Grant.
+ *
  * @return success value.
  */
 int trsh_environ(void) {
@@ -50,6 +58,7 @@ int trsh_environ(void) {
 }
 /**
  * Erase a file.
+ *
  * @param args pointer to an array of pointers containing arguments.
  * @return success or failure.
  */
@@ -65,28 +74,32 @@ int trsh_erase(char** args)
 }
 /**
  * Prints out files in current directory or directory supplied.
+ *
  * @param args pointer to array of pointers containing arguments.
  * @return success or failure.
  */
 int trsh_filez(char** args)
 {
-    char **tempArgs = calloc(3, sizeof(char*));
-    tempArgs[0] = "ls";
+    char *tempArgs[4]; //Create array of pointers, with room for terminating null.
+    tempArgs[0] = "ls"; //Use ls -1
     tempArgs[1] = "-1";
+    tempArgs[3] = NULL; //Terminating null
     if(args[1] != NULL)
     {
-        tempArgs[2] = args[1];
+        tempArgs[2] = args[1]; //If supplied, use directory.
+    } else{
+        tempArgs[2] = NULL; //Else null terminate early.
     }
     if(execvp(tempArgs[0], tempArgs) == -1)
     {
-        fprintf(stderr, "trsh_wipe: Screen wipe failed.\n");
+        fprintf(stderr, "trsh_filez: filez failed.\n"); //Print failure if fail.
         return EXIT_FAILURE;
     }
-
     return EXIT_SUCCESS;
 }
 /**
  * Removes a specified directory.
+ *
  * @param args rgs pointer to array of pointers containing arguments.
  * @return success or failure.
  */
@@ -102,6 +115,7 @@ int trsh_rmdirz(char** args)
 }
 /**
  * Wipe the current terminal session.
+ *
  * @return success or failure.
  */
 int trsh_wipe(void)
@@ -119,6 +133,7 @@ int trsh_wipe(void)
 }
 /**
  * Make a directory.
+ *
  * @param args rgs pointer to array of pointers containing arguments.
  * @return success or failure
  */
@@ -140,23 +155,23 @@ int trsh_mkdirz(char** args)
 
 int trsh_help(char** args) // Prints the contents of the readme.
 {
-    FILE *file;
-    int c;
+    FILE *file; //Help file pointer.
+    int c; //Character for printing.
 
-    file = fopen("/projects/2/README.txt", "r");
+    file = fopen("/projects/2/README.txt", "r"); //Open file
 
     if(file == NULL)
     {
-        fprintf(stderr, "trsh_help: file unable to be opened.\n");
+        fprintf(stderr, "trsh_help: file unable to be opened.\n"); //If not opened, error.
         return EXIT_FAILURE;
     }
     c = fgetc(file);
-    while(c != EOF)
+    while(c != EOF) //While there is a char, print.
     {
         printf("%c", c);
         c = fgetc(file);
     }
 
-    fclose(file);
+    fclose(file); //Close the file.
     return EXIT_SUCCESS;
 }

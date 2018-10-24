@@ -47,23 +47,26 @@ int hasFiles(const char *path)
             return HAS_FILES; //Contains a file or directory.
         }
     }
+    closedir(directory);
     return EXIT_SUCCESS;
 
 }
 /**
+ * Main code that handles/routes the mimic and morph operations.
  *
  * @param args pointer to array of pointers containing the arguments.
  * @return success or failure.
  */
 int trsh_mimic_morph(char** args)
 {
-    int mode = 0;
-    int recursionFlag = 0;
-    int sourceIndex = -1;
-    int destinationIndex = -1;
+    int mode = 0; //MIMIC if mimic, MORPH if morph.
+    int recursionFlag = 0; // 0 if no recursion flag, 1 if recursion flag.
+    int sourceIndex = -1; //Stores the index in args of the source.
+    int destinationIndex = -1; //Stores the index in args of the destination.
 
     char* sourceDirectory;
     char* destinationDirectory;
+    //********************** Set the mode ********************************
     if(strcmp(args[0], "mimic") == 0) //If mimic command
         mode = MIMIC;
     else if(strcmp(args[0], "morph") == 0) //If morph command.
@@ -113,17 +116,17 @@ int trsh_mimic_morph(char** args)
 
     destinationDirectory = malloc(PATH_MAX);
     realpath(args[destinationIndex], destinationDirectory); // Get full path of destination.
-    // ****************************** Cases ***********************************
+    // ****************************** Cases & Error Checking ***************************
 
-    if(!(isDir(sourceDirectory)) && !isFile(sourceDirectory)) //Source does not exist.
+    if(!(isDir(sourceDirectory)) && !(isFile(sourceDirectory))) //Source does not exist.
     {
-        fprintf(stderr, "Source does not exist. Exiting...\n");
+        fprintf(stderr, "morph/mimic: %s does not exist. Exiting...\n", sourceDirectory);
         return EXIT_FAILURE;
     }
 
     if(isDir(sourceDirectory) && hasFiles(sourceDirectory) && recursionFlag != 1) //Source is non empty dir, no -r flag
     {
-        fprintf(stderr, "Source is a non-empty directory, and recursion flag not set.\n");
+        fprintf(stderr, "morph/mimic: %s is a non-empty directory, and recursion flag not set.\n", sourceDirectory);
         return EXIT_FAILURE;
     }
 
@@ -147,6 +150,7 @@ int trsh_mimic_morph(char** args)
     {
         if(hasFiles(sourceDirectory))
         {
+            //Recursively copy.
             return recursiveFileOperation(mode, recursionFlag, sourceDirectory, destinationDirectory);
         }
 
@@ -156,7 +160,7 @@ int trsh_mimic_morph(char** args)
             strcpy(moveFileName, destinationDirectory);
             strcat(moveFileName, "/");
             strcat(moveFileName, basename(sourceDirectory));
-            printf("%s\n", moveFileName);
+            //printf("%s\n", moveFileName);
 
             if(mkdir(moveFileName, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1)
             {
@@ -186,6 +190,7 @@ int trsh_mimic_morph(char** args)
     return EXIT_SUCCESS;
 }
 /**
+ * Recursively copies or moves directories.
  *
  * @param mode MORPH for morph and MIMIC for mimic.
  * @param recursive_flag 0 if no recursion, 1 if recursion.
@@ -209,7 +214,7 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
             child = fts_children(srcFileStructure, 0);
             if(parent->fts_info == FTS_D)
             {
-                //TODO: Will only create directories on one level. Find way to properly create destination path.
+                //Create filename for the directory to be created.
                 char* tempDirName = malloc(PATH_MAX);
                 strcpy(tempDirName, destination);
                 recursivePathBuilder(parent->fts_level, tempDirName, parent);
@@ -219,10 +224,7 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
                     fprintf(stderr, "recursiveOperation: creation of directory %s unsuccessful.\n", tempDirName);
                     return EXIT_FAILURE;
                 }
-
-
             }
-
             if(errno != 0)
             {
                 fprintf(stderr, "Error calling fts_children\n");
@@ -232,12 +234,13 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
             {
                 if(child->fts_info == FTS_F)
                 {
+                    //Create the path of the file to be copied.
                     char* srcCpy = malloc(PATH_MAX);
                     strcpy(srcCpy, child->fts_path);
                     strcat(srcCpy, "/");
                     strcat(srcCpy, child->fts_name);
 
-                    //TODO: Will only copy files up to one level. Find way to properly create destination path.
+                    //Create the path of the file or dir to be moved to.
                     char* dstCpy = malloc(PATH_MAX);
                     strcpy(dstCpy, destination);
                     recursivePathBuilder(child->fts_level, dstCpy, child);
@@ -257,7 +260,7 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
                     free(srcCpy);
                     free(dstCpy);
                 }
-                child = child->fts_link;
+                child = child->fts_link; //Get next child.
             }
             if(mode == MORPH && parent->fts_info == FTS_D && (strcmp(parent->fts_name, basename(source)) != 0)) {
                 if (remove(parent->fts_name) != 0) {
@@ -267,28 +270,30 @@ int recursiveFileOperation(int mode, int recursive_flag, char* source, char* des
             }
         }
     }
-    fts_close(srcFileStructure);
+    fts_close(srcFileStructure); //Close the FTS structure.
     if(mode == MORPH)
     {
-        remove(source);
+        remove(source); //Remove the root directory if MORPH
     }
     return EXIT_SUCCESS;
 }
 /**
- * Function for FTS to use.
- * @param one
- * @param two
- * @return
+ * Function for FTS to use in traversing.
+ *
+ * @param one file structure
+ * @param two file structure
+ * @return comparison between structure names.
  */
 int trsh_fts_cmp(const FTSENT** one, const FTSENT** two)
 {
     return strcmp((*one)->fts_name, (*two)->fts_name);
 }
 /**
+ * Function used to copy a file to an existing directory or file.
  *
- * @param source
- * @param destination
- * @return
+ * @param source file to be copied
+ * @param destination directory or file to be copied to.
+ * @return success/fail
  */
 int fileCpy(char* source, char* destination)
 {
@@ -322,7 +327,13 @@ int fileCpy(char* source, char* destination)
 
     return EXIT_SUCCESS;
 }
-
+/**
+ * Function that builds file paths recursively in FTS structures.
+ * @param level the level of the current file.
+ * @param path a pointer to the path that is being created
+ * @param location the FTSENT* structure containing needed data.
+ * @return success/fail
+ */
 int recursivePathBuilder(int level, char* path, FTSENT* location)
 {
     if (level > 0)
