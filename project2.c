@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
         while ((inputChar = getchar()) != '\n' && length < 1000) {
             if (inputChar == EOF) //If the macro file ends, print a following prompt.
             {
-                printf("==>");
+                printf("%s==>", cwdBuf);
                 return EXIT_SUCCESS;
             }
 
