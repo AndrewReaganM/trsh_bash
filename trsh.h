@@ -22,7 +22,7 @@
 #define MAX_FILENAME 256
 #define HAS_FILES 3
 
-int numArgs;
+extern int numArgs;
 extern char **environ;
 
 char** trsh_INPUTPARSE(char *input, int *numArgs); //Parses the input into tokens.
