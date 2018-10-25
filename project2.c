@@ -151,8 +151,10 @@ int trsh_ROUTING(char **tokenizedData) {
             return EXIT_FAILURE;
         }
         if (pid == 0) {
+            //
+            //sleep(10);
             trsh_REDIRECTION(tokenizedData);
-            printf("Running external command...\n");
+            //printf("Running external command...\n");
             if(execvp(tokenizedData[0], tokenizedData) == -1)
             {
                 fprintf(stderr,"trsh: Command not recognized.\n"); //If failure, return EXIT_FAILURE
@@ -175,45 +177,49 @@ int trsh_ROUTING(char **tokenizedData) {
  */
 int trsh_REDIRECTION(char **tokenizedData) {
     const char READ = 'r'; //Represents READ for freopen.
-    printf("Looking for IO commands.\n");
-    for (int i = 0; i < numArgs - 1; i++) //Check all but the last entry for i/o redirection symbols.
+    //printf("Looking for IO commands.\n");
+    for (int i = numArgs-1; i > 0; i--) //Check all but the last entry for i/o redirection symbols.
     {
         // Set up redirection in a given process.
-        if (strcmp(tokenizedData[i], "<") == 0) {
+        if (strcmp(tokenizedData[i-1], "<") == 0) {
 
-            if(freopen(tokenizedData[i+1], &READ, stdin) == NULL) //Opens file to read to stdin.
+            if(freopen(tokenizedData[i], &READ, stdin) == NULL) //Opens file to read to stdin.
             {
-                fprintf(stderr, "Unable to open file '%s' for reading.\n", tokenizedData[i+1]);
+                fprintf(stderr, "Unable to open file '%s' for reading.\n", tokenizedData[i]);
                 return EXIT_FAILURE;
             }
-            printf("Input redirection set up.\n");
+            //printf("Input redirection set up.\n");
 
             numArgs -= 2;
+            tokenizedData[i-1] = NULL;
             tokenizedData[i] = NULL;
-            tokenizedData[i + 1] = NULL;
+            --i; //Ignore the last 2
 
         }
-        if (strcmp(tokenizedData[i], ">") == 0) {
-            if(freopen(tokenizedData[i + 1], "wb", stdout) == NULL) //Opens stdout to write to file.
+        else if (strcmp(tokenizedData[i-1], ">") == 0) {
+            if(freopen(tokenizedData[i], "wb", stdout) == NULL) //Opens stdout to write to file.
             {
-                fprintf(stderr, "Unable to open file '%s' for writing.\n", tokenizedData[i+1]);
+                fprintf(stderr, "Unable to open file '%s' for writing.\n", tokenizedData[i]);
                 return EXIT_FAILURE;
             }
             //printf("Output redirection set up.\n");
             numArgs -= 2;
+            tokenizedData[i-1] = NULL;
             tokenizedData[i] = NULL;
-            tokenizedData[i + 1] = NULL; 
+            --i; //Ignore the last 2
         }
-        if (strcmp(tokenizedData[i], ">>") == 0) {
-            if(freopen(tokenizedData[i + 1], "a", stdout) == NULL) //Opens stdout to append to a file.
+        else if (strcmp(tokenizedData[i-1], ">>") == 0) {
+            if(freopen(tokenizedData[i], "a", stdout) == NULL) //Opens stdout to append to a file.
             {
-                fprintf(stderr, "Unable to open file '%s' for appending.\n", tokenizedData[i+1]);
+                fprintf(stderr, "Unable to open file '%s' for appending.\n", tokenizedData[i]);
                 return EXIT_FAILURE;
             }
             //printf("Output appending redirection set up.\n");
+
             numArgs -= 2;
+            tokenizedData[i-1] = NULL;
             tokenizedData[i] = NULL;
-            tokenizedData[i + 1] = NULL;
+            --i; //Ignore the last 2
         }
     }
     return EXIT_SUCCESS; //Return EXIT_SUCCESS regardless.
